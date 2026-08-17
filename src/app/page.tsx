@@ -379,16 +379,6 @@ export default function HotpotCalculator() {
         <span style={{ marginLeft: '8px', color: '#6b7280' }}>{dbStatus}</span>
       </p>
 
-      <div className="banner">
-        📋 <b>已内置 5 个套餐</b>：菜品名字、分量、单位、零售价、团购价已铺好；能按分量反推出的「零售单价」已预填。
-        <br />
-        ✍️ <b>毛利率只看「成本价」</b>（红框=未填）；分量/单价/零售价只影响定价展示，改它们不会直接改毛利率。手动修改零售价的行会标黄锁定。
-        <br />
-        💾 <b>编辑 / 保存</b>：默认只读，点「编辑」解锁所有输入框，点「保存」把 5 个套餐同步到数据库。
-        <br />
-        ⚠️ 首次使用：数据已内置在代码里，开箱即见；点「保存」即可写入数据库供多人共享。
-      </div>
-
       <div className="selbar">
         <label>选择套餐：</label>
         <select value={cur} onChange={(e) => switchMeal(parseInt(e.target.value))}>
