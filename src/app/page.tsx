@@ -1610,17 +1610,62 @@ export default function HotpotCalculator() {
           100%{ width: 24px; }
           background:var(--bg);z-index:9999;
         }
-        .loading-spinner{
-          width:42px;height:42px;border:3px solid var(--line);
-          border-top-color:var(--brand);border-radius:50%;
-          animation:spin 0.8s linear infinite;margin-bottom:18px;
+        .loading-hotpot{
+          position:relative;width:80px;height:64px;margin-bottom:24px;
         }
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .loading-text{
-          font-size:18px;font-weight:600;color:var(--ink);margin-bottom:6px;
+        /* 锅身 */
+        .loading-pot{
+          position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+          width:64px;height:36px;
+          background:linear-gradient(180deg,#e0322d 0%,#b9231e 100%);
+          border-radius:0 0 32px 32px;
+          box-shadow:inset 0 -4px 0 rgba(0,0,0,.12);
         }
-        .loading-sub{
-          font-size:13px;color:var(--sub);
+        /* 锅沿 */
+        .loading-pot::before{
+          content:"";position:absolute;top:-4px;left:-4px;right:-4px;height:10px;
+          background:#c72823;border-radius:6px;
+          box-shadow:0 2px 4px rgba(0,0,0,.15);
+        }
+        /* 锅把手 */
+        .loading-pot::after{
+          content:"";position:absolute;top:-2px;left:-12px;right:-12px;height:4px;
+          background:#8c1c18;border-radius:2px;
+        }
+        /* 蒸汽 */
+        .loading-steam{
+          position:absolute;bottom:38px;left:50%;transform:translateX(-50%);
+          display:flex;gap:6px;
+        }
+        .loading-steam span{
+          display:block;width:6px;height:16px;border-radius:3px;
+          background:rgba(224,50,45,.25);
+          animation:steam 1.4s ease-in-out infinite;
+        }
+        .loading-steam span:nth-child(1){ animation-delay: 0s; }
+        .loading-steam span:nth-child(2){ animation-delay: .25s; }
+        .loading-steam span:nth-child(3){ animation-delay: .5s; }
+        .loading-steam span:nth-child(4){ animation-delay: .75s; }
+        .loading-steam span:nth-child(5){ animation-delay: 1s; }
+        @keyframes steam{
+          0%   { transform: translateY(0) scaleY(.6); opacity: 0; }
+          30%  { opacity: 1; }
+          100% { transform: translateY(-22px) scaleY(1); opacity: 0; }
+        }
+        .loading-brand{
+          font-size:18px;font-weight:700;color:#1f2329;letter-spacing:2px;
+          margin-bottom:6px;
+        }
+        .loading-dots{
+          font-size:13px;color:#9ca3af;letter-spacing:1px;
+        }
+        .loading-dots::after{
+          content:"...";display:inline-block;width:20px;text-align:left;
+          animation:dots 1.2s steps(4,end) infinite;overflow:hidden;vertical-align:bottom;
+        }
+        @keyframes dots{
+          0%  { width: 0; }
+          100%{ width: 24px; }
         }
       `}</style>
     </div>
