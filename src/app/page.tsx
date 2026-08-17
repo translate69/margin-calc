@@ -1337,9 +1337,10 @@ export default function HotpotCalculator() {
           .m-card {
             background: #fff;
             border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
           }
           .m-group {
             color: var(--brand);
@@ -1364,32 +1365,40 @@ export default function HotpotCalculator() {
             font-size: 14px;
           }
           .m-fields {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
           }
           .m-fields label {
             display: flex;
-            flex-direction: column;
-            gap: 3px;
-            font-size: 12px;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+          }
+          .m-fields label span {
+            width: 72px;
+            flex: none;
             color: var(--sub);
           }
-          .m-fields label.full {
-            grid-column: 1 / -1;
-          }
           .m-fields input {
-            width: 100%;
+            flex: 1;
+            min-width: 0;
+            min-height: 44px;
             font-size: 16px;
-            padding: 9px 10px;
+            padding: 11px 12px;
             border: 1px solid var(--line);
-            border-radius: 8px;
+            border-radius: 9px;
             color: var(--ink);
             background: #fff;
           }
           .m-fields input:focus {
             outline: none;
             border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(224, 50, 45, 0.08);
+          }
+          .m-fields input:disabled {
+            background: #f3f4f6;
+            color: #9ca3af;
           }
           .m-fields input.pu {
             text-align: left;
