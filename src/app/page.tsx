@@ -1605,11 +1605,6 @@ export default function HotpotCalculator() {
           content:"...";display:inline-block;width:20px;text-align:left;
           animation:dots 1.2s steps(4,end) infinite;overflow:hidden;vertical-align:bottom;
         }
-        @keyframes dots{
-          0%  { width: 0; }
-          100%{ width: 24px; }
-          background:var(--bg);z-index:9999;
-        }
         .loading-hotpot{
           position:relative;width:80px;height:64px;margin-bottom:24px;
         }
