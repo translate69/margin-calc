@@ -389,6 +389,9 @@ export default function HotpotCalculator() {
         </div>
         <div className="loading-brand">火锅毛利率</div>
         <div className="loading-dots">加载中</div>
+        <div className="loading-spinner"></div>
+        <div className="loading-text">火锅套餐毛利率计算器</div>
+        <div className="loading-sub">正在加载...</div>
       </div>
     );
   }
@@ -1605,6 +1608,19 @@ export default function HotpotCalculator() {
         @keyframes dots{
           0%  { width: 0; }
           100%{ width: 24px; }
+          background:var(--bg);z-index:9999;
+        }
+        .loading-spinner{
+          width:42px;height:42px;border:3px solid var(--line);
+          border-top-color:var(--brand);border-radius:50%;
+          animation:spin 0.8s linear infinite;margin-bottom:18px;
+        }
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .loading-text{
+          font-size:18px;font-weight:600;color:var(--ink);margin-bottom:6px;
+        }
+        .loading-sub{
+          font-size:13px;color:var(--sub);
         }
       `}</style>
     </div>
