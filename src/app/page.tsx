@@ -563,9 +563,9 @@ export default function HotpotCalculator() {
               <button type="button" className="m-toggle" onClick={() => setItemsExpanded(true)}>
                 <span className="mt-info">
                   <span className="mt-title">食材明细（{itemCount}项）</span>
-                  <span className="mt-sub">食材成本小计 {fmt(foodRaw(m))} · 点开查看 / 编辑</span>
+                  <span className="mt-sub">食材成本小计 {fmt(foodRaw(m))} · 点开查看</span>
                 </span>
-                <span className="mt-arrow">查看 / 编辑 ↓</span>
+                <span className="mt-arrow">查看 ↓</span>
               </button>
             ) : (
               <>
