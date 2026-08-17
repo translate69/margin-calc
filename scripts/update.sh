@@ -30,13 +30,18 @@ fi
 echo "==> 从 GitHub 拉取最新代码 ..."
 git fetch origin main
 
-# 按当前状态同步到远程 main：
-#  - 已在 main 分支：仅快进合并（不产生多余 merge commit）
+# 把本地对齐到远程 main：
+#  - 已在 main 分支：先尝试快进；若与远程分叉（本地有远程没有的提交），则直接对齐远程（丢弃本地独有提交）
 #  - detached HEAD（部署/CI 按 commit 检出的常见情况）：把本地 main 对齐到远程最新
 #  - 其他分支：提示先切回 main，避免误改
 CURRENT="$(git rev-parse --abbrev-ref HEAD)"
 if [ "$CURRENT" = "main" ]; then
-  git merge --ff-only origin/main
+  if git merge --ff-only origin/main 2>/dev/null; then
+    :
+  else
+    echo "⚠ 本地 main 与远程分叉，无法直接快进；将把本地对齐到远程最新（丢弃本地独有提交）..."
+    git reset --hard origin/main
+  fi
 elif [ "$CURRENT" = "HEAD" ]; then
   git checkout -B main origin/main
 else
