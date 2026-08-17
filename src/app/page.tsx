@@ -217,7 +217,6 @@ export default function HotpotCalculator() {
   const [cur, setCur] = useState(0);
   const [editing, setEditing] = useState(false);
   const [backup, setBackup] = useState<Meal[] | null>(null);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dbStatus, setDbStatus] = useState('');
   const m = meals[cur];
@@ -283,8 +282,6 @@ export default function HotpotCalculator() {
       } catch (e: any) {
         setDbStatus('数据库连接失败，使用本地默认数据');
         console.warn('加载失败', e);
-      } finally {
-        setLoading(false);
       }
     };
     load();
@@ -373,14 +370,6 @@ export default function HotpotCalculator() {
   };
 
   const disabledAttr = editing ? {} : { disabled: true };
-
-  if (loading) {
-    return (
-      <div className="wrap" style={{ padding: '40px', textAlign: 'center' }}>
-        加载中...
-      </div>
-    );
-  }
 
   return (
     <div className="wrap">
