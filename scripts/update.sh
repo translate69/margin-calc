@@ -19,28 +19,35 @@ if ! git remote get-url origin >/dev/null 2>&1; then
   echo "✗ 没有配置 origin 远程仓库，请先：git remote add origin <仓库地址>"; exit 1
 fi
 
-# 必须在 main 分支
-BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-if [ "$BRANCH" != "main" ]; then
-  echo "✗ 当前在 '$BRANCH' 分支，更新脚本只支持 main，请先切回 main（git checkout main）"; exit 1
-fi
-
-# 工作区必须干净，避免 pull 把本地未提交改动冲掉
+# 工作区必须干净，避免更新把本地未提交改动冲掉
 if [ -n "$(git status --porcelain)" ]; then
   echo "✗ 当前有未提交的改动，先 commit 或 stash 再更新，否则会被覆盖："
   git status --short
   exit 1
 fi
 
-# 1. 拉取最新（仅快进，不自动合并产生多余 commit）
+# 拉取远程 main 最新引用
 echo "==> 从 GitHub 拉取最新代码 ..."
-git pull --ff-only origin main
+git fetch origin main
 
-# 2. 安装 / 更新依赖
+# 按当前状态同步到远程 main：
+#  - 已在 main 分支：仅快进合并（不产生多余 merge commit）
+#  - detached HEAD（部署/CI 按 commit 检出的常见情况）：把本地 main 对齐到远程最新
+#  - 其他分支：提示先切回 main，避免误改
+CURRENT="$(git rev-parse --abbrev-ref HEAD)"
+if [ "$CURRENT" = "main" ]; then
+  git merge --ff-only origin/main
+elif [ "$CURRENT" = "HEAD" ]; then
+  git checkout -B main origin/main
+else
+  echo "✗ 当前在 '$CURRENT' 分支，更新脚本只支持 main，请先切回 main（git checkout main）"; exit 1
+fi
+
+# 安装 / 更新依赖
 echo "==> 安装依赖 ..."
 pnpm install --prefer-offline
 
-# 3. 重新构建
+# 重新构建
 echo "==> 构建 Next.js 项目 ..."
 pnpm next build
 
