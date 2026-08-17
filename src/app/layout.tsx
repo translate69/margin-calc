@@ -1,9 +1,15 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 // 禁止 CDN/Next 长期缓存 HTML，避免「旧 HTML 引用已不存在的旧 JS chunk」导致水合失败、页面能看不能点
 export const dynamic = 'force-dynamic';
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   title: {

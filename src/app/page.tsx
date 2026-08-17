@@ -445,83 +445,175 @@ export default function HotpotCalculator() {
           <div className="priceview">售价（团购价）= {fmt(r.P)}</div>
 
           <div className="sub-h">食材明细（分量×单价=零售价，手动改零售价的行会标黄锁定）</div>
-          <table className="items">
-            <thead>
-              <tr>
-                <th>菜品名字</th>
-                <th>分量</th>
-                <th>单位</th>
-                <th>零售单价</th>
-                <th>零售价</th>
-                <th>团购价</th>
-                <th>成本价</th>
-                <th>备注</th>
-              </tr>
-            </thead>
-            <tbody>
-              {m.items.map((it: any, idx: number) => {
-                if (it.kind === 'group') {
+          <div className="items-desktop">
+            <table className="items">
+              <thead>
+                <tr>
+                  <th>菜品名字</th>
+                  <th>分量</th>
+                  <th>单位</th>
+                  <th>零售单价</th>
+                  <th>零售价</th>
+                  <th>团购价</th>
+                  <th>成本价</th>
+                  <th>备注</th>
+                </tr>
+              </thead>
+              <tbody>
+                {m.items.map((it: any, idx: number) => {
+                  if (it.kind === 'group') {
+                    return (
+                      <tr key={'g' + idx} className="group">
+                        <td colSpan={8}>{it.label}</td>
+                      </tr>
+                    );
+                  }
                   return (
-                    <tr key={'g' + idx} className="group">
-                      <td colSpan={8}>{it.label}</td>
+                    <tr key={idx}>
+                      <td>{it.name}</td>
+                      <td>
+                        <input
+                          className="pn"
+                          value={it.pnum != null ? it.pnum : ''}
+                          type="number"
+                          step="any"
+                          onChange={(e) => updateItem(idx, 'pnum', e.target.value)}
+                          onBlur={() => tryAutoRetail(idx)}
+                          {...disabledAttr}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          className="pu"
+                          value={it.punit != null ? it.punit : ''}
+                          onChange={(e) => updateItem(idx, 'punit', e.target.value)}
+                          {...disabledAttr}
+                        />
+                      </td>
+                      <td className="num">
+                        <input
+                          className="up"
+                          value={it.unitPrice != null ? it.unitPrice : ''}
+                          type="number"
+                          step="any"
+                          onChange={(e) => updateItem(idx, 'unitPrice', e.target.value)}
+                          onBlur={() => tryAutoRetail(idx)}
+                          {...disabledAttr}
+                        />
+                      </td>
+                      <td className="num">
+                        <input
+                          className={'ret' + (it.retailLock ? ' locked' : '')}
+                          value={it.retail != null ? it.retail : ''}
+                          type="number"
+                          step="any"
+                          onChange={(e) => handleRetailChange(idx, e.target.value)}
+                          {...disabledAttr}
+                        />
+                      </td>
+                      <td className="num">{fmt(itemGroupPrice(it))}</td>
+                      <td className="num">
+                        <input
+                          className={'cost' + (it.cost == null ? ' zero' : '')}
+                          value={it.cost == null ? '' : it.cost}
+                          type="number"
+                          step="any"
+                          onChange={(e) => handleCostChange(idx, e.target.value)}
+                          {...disabledAttr}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          className="note"
+                          value={it.note != null ? it.note : ''}
+                          placeholder="如：100g/份"
+                          onChange={(e) => updateItem(idx, 'note', e.target.value)}
+                          {...disabledAttr}
+                        />
+                      </td>
                     </tr>
                   );
-                }
+                })}
+                <tr className="sum">
+                  <td colSpan={6}>食材成本小计（未计损耗）</td>
+                  <td className="num">{fmt(foodRaw(m))}</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="items-mobile">
+            {m.items.map((it: any, idx: number) => {
+              if (it.kind === 'group') {
                 return (
-                  <tr key={idx}>
-                    <td>{it.name}</td>
-                    <td>
+                  <div key={'g' + idx} className="m-group">
+                    {it.label}
+                  </div>
+                );
+              }
+              return (
+                <div key={idx} className="m-card">
+                  <div className="m-head">
+                    <span className="m-name">{it.name}</span>
+                    <span className="m-price">{fmt(itemGroupPrice(it))}</span>
+                  </div>
+                  <div className="m-fields">
+                    <label>
+                      <span>分量</span>
                       <input
-                        className="pn"
-                        value={it.pnum != null ? it.pnum : ''}
                         type="number"
                         step="any"
+                        value={it.pnum != null ? it.pnum : ''}
                         onChange={(e) => updateItem(idx, 'pnum', e.target.value)}
                         onBlur={() => tryAutoRetail(idx)}
                         {...disabledAttr}
                       />
-                    </td>
-                    <td>
+                    </label>
+                    <label>
+                      <span>单位</span>
                       <input
                         className="pu"
                         value={it.punit != null ? it.punit : ''}
                         onChange={(e) => updateItem(idx, 'punit', e.target.value)}
                         {...disabledAttr}
                       />
-                    </td>
-                    <td className="num">
+                    </label>
+                    <label>
+                      <span>零售单价</span>
                       <input
-                        className="up"
-                        value={it.unitPrice != null ? it.unitPrice : ''}
                         type="number"
                         step="any"
+                        value={it.unitPrice != null ? it.unitPrice : ''}
                         onChange={(e) => updateItem(idx, 'unitPrice', e.target.value)}
                         onBlur={() => tryAutoRetail(idx)}
                         {...disabledAttr}
                       />
-                    </td>
-                    <td className="num">
+                    </label>
+                    <label>
+                      <span>零售价</span>
                       <input
                         className={'ret' + (it.retailLock ? ' locked' : '')}
-                        value={it.retail != null ? it.retail : ''}
                         type="number"
                         step="any"
+                        value={it.retail != null ? it.retail : ''}
                         onChange={(e) => handleRetailChange(idx, e.target.value)}
                         {...disabledAttr}
                       />
-                    </td>
-                    <td className="num">{fmt(itemGroupPrice(it))}</td>
-                    <td className="num">
+                    </label>
+                    <label className="full">
+                      <span>成本价</span>
                       <input
                         className={'cost' + (it.cost == null ? ' zero' : '')}
-                        value={it.cost == null ? '' : it.cost}
                         type="number"
                         step="any"
+                        value={it.cost == null ? '' : it.cost}
                         onChange={(e) => handleCostChange(idx, e.target.value)}
                         {...disabledAttr}
                       />
-                    </td>
-                    <td>
+                    </label>
+                    <label className="full">
+                      <span>备注</span>
                       <input
                         className="note"
                         value={it.note != null ? it.note : ''}
@@ -529,17 +621,16 @@ export default function HotpotCalculator() {
                         onChange={(e) => updateItem(idx, 'note', e.target.value)}
                         {...disabledAttr}
                       />
-                    </td>
-                  </tr>
-                );
-              })}
-              <tr className="sum">
-                <td colSpan={6}>食材成本小计（未计损耗）</td>
-                <td className="num">{fmt(foodRaw(m))}</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
+                    </label>
+                  </div>
+                </div>
+              );
+            })}
+            <div className="m-sum">
+              <span>食材成本小计（未计损耗）</span>
+              <span>{fmt(foodRaw(m))}</span>
+            </div>
+          </div>
           <div className="row" style={{ marginTop: '10px' }}>
             <label>食材损耗率（%）</label>
             <input
@@ -713,40 +804,42 @@ export default function HotpotCalculator() {
         <div style={{ fontSize: '14px', fontWeight: 600, margin: '4px 0 2px' }}>
           5 个套餐横向对比
         </div>
-        <table className="cmp">
-          <thead>
-            <tr>
-              <th>套餐</th>
-              <th>原价</th>
-              <th>折扣</th>
-              <th>售价</th>
-              <th>理论毛利率</th>
-              <th>实际毛利率</th>
-              <th>净利率</th>
-              <th>餐具超额</th>
-            </tr>
-          </thead>
-          <tbody>
-            {meals.map((meal, i) => {
-              const cr = compute(meal);
-              return (
-                <tr key={meal.id}>
-                  <td>
-                    {meal.name}
-                    {i === cur ? ' ·' : ''}
-                  </td>
-                  <td>{fmt(meal.retail)}</td>
-                  <td>{meal.discount}折</td>
-                  <td>{fmt(cr.P)}</td>
-                  <td className="g">{pct(cr.mTheo)}</td>
-                  <td className="g">{pct(cr.mReal)}</td>
-                  <td className="b">{pct(cr.mNet)}</td>
-                  <td>{(cr.tLoss * 100).toFixed(0)}%</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="cmp-wrap">
+          <table className="cmp">
+            <thead>
+              <tr>
+                <th>套餐</th>
+                <th>原价</th>
+                <th>折扣</th>
+                <th>售价</th>
+                <th>理论毛利率</th>
+                <th>实际毛利率</th>
+                <th>净利率</th>
+                <th>餐具超额</th>
+              </tr>
+            </thead>
+            <tbody>
+              {meals.map((meal, i) => {
+                const cr = compute(meal);
+                return (
+                  <tr key={meal.id}>
+                    <td>
+                      {meal.name}
+                      {i === cur ? ' ·' : ''}
+                    </td>
+                    <td>{fmt(meal.retail)}</td>
+                    <td>{meal.discount}折</td>
+                    <td>{fmt(cr.P)}</td>
+                    <td className="g">{pct(cr.mTheo)}</td>
+                    <td className="g">{pct(cr.mReal)}</td>
+                    <td className="b">{pct(cr.mNet)}</td>
+                    <td>{(cr.tLoss * 100).toFixed(0)}%</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
         <div className="note">
           注：对比表读取各套餐已填写的数值。改完任一套餐后切回它即可刷新对比。成本未填的套餐毛利率会虚高，先补全再比。
         </div>
@@ -1002,6 +1095,9 @@ export default function HotpotCalculator() {
           font-weight: 700;
           border-top: 2px solid var(--line);
         }
+        .items-mobile {
+          display: none;
+        }
         input:disabled {
           background: #f3f4f6;
           color: #9ca3af;
@@ -1163,6 +1259,214 @@ export default function HotpotCalculator() {
         .b {
           color: var(--blue);
           font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+          body {
+            padding: 12px;
+          }
+          h1 {
+            font-size: 18px;
+          }
+          .tip {
+            font-size: 12px;
+          }
+          .banner {
+            font-size: 12px;
+            padding: 8px 10px;
+          }
+          .selbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+          }
+          .selbar label {
+            font-size: 13px;
+          }
+          select {
+            width: 100%;
+            min-width: 0;
+            font-size: 16px;
+            padding: 10px 12px;
+          }
+          .btn {
+            width: 100%;
+            padding: 10px 0;
+            font-size: 15px;
+          }
+          .grid {
+            gap: 10px;
+          }
+          .card {
+            padding: 12px;
+            border-radius: 10px;
+          }
+          .card h2 {
+            font-size: 14px;
+          }
+          .row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 4px;
+            margin: 10px 0;
+          }
+          .row label {
+            font-size: 13px;
+          }
+          .row input {
+            width: 100%;
+            font-size: 16px;
+            padding: 10px 12px;
+            text-align: left;
+          }
+          .priceview {
+            font-size: 18px;
+            text-align: left;
+            margin: 8px 0;
+          }
+          .sub-h {
+            font-size: 12px;
+            margin: 12px 0 8px;
+          }
+          .items-desktop {
+            display: none;
+          }
+          .items-mobile {
+            display: block;
+          }
+          .m-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+          }
+          .m-group {
+            color: var(--brand);
+            font-weight: 600;
+            font-size: 12px;
+            padding: 8px 0 4px;
+            margin-top: 6px;
+          }
+          .m-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+          }
+          .m-name {
+            font-weight: 600;
+            font-size: 14px;
+          }
+          .m-price {
+            color: var(--brand);
+            font-weight: 700;
+            font-size: 14px;
+          }
+          .m-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+          }
+          .m-fields label {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            font-size: 12px;
+            color: var(--sub);
+          }
+          .m-fields label.full {
+            grid-column: 1 / -1;
+          }
+          .m-fields input {
+            width: 100%;
+            font-size: 16px;
+            padding: 9px 10px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            color: var(--ink);
+            background: #fff;
+          }
+          .m-fields input:focus {
+            outline: none;
+            border-color: var(--brand);
+          }
+          .m-fields input.pu {
+            text-align: left;
+          }
+          .m-fields input.ret {
+            text-align: right;
+            background: #fff;
+          }
+          .m-fields input.ret.locked {
+            background: #fffbeb;
+            border-color: #fde68a;
+          }
+          .m-fields input.cost {
+            text-align: right;
+          }
+          .m-fields input.cost.zero {
+            border-color: #f0b4b0;
+            background: #fff8f7;
+          }
+          .m-fields input.note {
+            text-align: left;
+          }
+          .m-sum {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: #fafafa;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            margin-top: 4px;
+          }
+          .cmp-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -12px;
+            padding: 0 12px;
+          }
+          .cmp {
+            min-width: 680px;
+          }
+          .big {
+            gap: 10px;
+            margin-bottom: 10px;
+          }
+          .metric {
+            padding: 12px;
+          }
+          .metric .k {
+            font-size: 12px;
+          }
+          .metric .v {
+            font-size: 24px;
+          }
+          .metric .d {
+            font-size: 11px;
+          }
+          .bars {
+            padding: 12px;
+          }
+          .bar {
+            margin: 8px 0;
+          }
+          .bar .name {
+            width: 100px;
+            font-size: 12px;
+          }
+          .bar .track {
+            height: 20px;
+          }
+          .pill {
+            font-size: 12px;
+          }
+          .note {
+            font-size: 11px;
+          }
         }
       `}</style>
     </div>
