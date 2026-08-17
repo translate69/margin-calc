@@ -422,6 +422,9 @@ export default function HotpotCalculator() {
           <div className="row">
             <label>零售价（原价，元）</label>
             <input
+              type="number"
+              step="any"
+              min="0"
               value={m.retail}
               onChange={(e) => handleFieldInput('retail', e.target.value)}
               {...disabledAttr}
@@ -471,11 +474,10 @@ export default function HotpotCalculator() {
                       <input
                         className="pn"
                         value={it.pnum != null ? it.pnum : ''}
-                        inputMode="decimal"
-                        onChange={(e) => {
-                          updateItem(idx, 'pnum', e.target.value);
-                          tryAutoRetail(idx);
-                        }}
+                        type="number"
+                        step="any"
+                        onChange={(e) => updateItem(idx, 'pnum', e.target.value)}
+                        onBlur={() => tryAutoRetail(idx)}
                         {...disabledAttr}
                       />
                     </td>
@@ -491,11 +493,10 @@ export default function HotpotCalculator() {
                       <input
                         className="up"
                         value={it.unitPrice != null ? it.unitPrice : ''}
-                        inputMode="decimal"
-                        onChange={(e) => {
-                          updateItem(idx, 'unitPrice', e.target.value);
-                          tryAutoRetail(idx);
-                        }}
+                        type="number"
+                        step="any"
+                        onChange={(e) => updateItem(idx, 'unitPrice', e.target.value)}
+                        onBlur={() => tryAutoRetail(idx)}
                         {...disabledAttr}
                       />
                     </td>
@@ -503,7 +504,8 @@ export default function HotpotCalculator() {
                       <input
                         className={'ret' + (it.retailLock ? ' locked' : '')}
                         value={it.retail != null ? it.retail : ''}
-                        inputMode="decimal"
+                        type="number"
+                        step="any"
                         onChange={(e) => handleRetailChange(idx, e.target.value)}
                         {...disabledAttr}
                       />
@@ -513,7 +515,8 @@ export default function HotpotCalculator() {
                       <input
                         className={'cost' + (it.cost == null ? ' zero' : '')}
                         value={it.cost == null ? '' : it.cost}
-                        inputMode="decimal"
+                        type="number"
+                        step="any"
                         onChange={(e) => handleCostChange(idx, e.target.value)}
                         {...disabledAttr}
                       />
@@ -541,6 +544,7 @@ export default function HotpotCalculator() {
             <label>食材损耗率（%）</label>
             <input
               type="number"
+              step="any"
               min="0"
               value={m.loss}
               onChange={(e) => handleFieldInput('loss', e.target.value)}
@@ -576,6 +580,7 @@ export default function HotpotCalculator() {
             <label>单套餐具成本（元）</label>
             <input
               type="number"
+              step="any"
               min="0"
               value={m.tableUnit}
               onChange={(e) => handleFieldInput('tableUnit', e.target.value)}
@@ -586,6 +591,7 @@ export default function HotpotCalculator() {
             <label>一次性用品（围裙/纸巾）</label>
             <input
               type="number"
+              step="any"
               min="0"
               value={m.one}
               onChange={(e) => handleFieldInput('one', e.target.value)}
@@ -604,6 +610,7 @@ export default function HotpotCalculator() {
             <label>人工分摊</label>
             <input
               type="number"
+              step="any"
               min="0"
               value={m.lab}
               onChange={(e) => handleFieldInput('lab', e.target.value)}
@@ -614,6 +621,7 @@ export default function HotpotCalculator() {
             <label>燃气 / 水电</label>
             <input
               type="number"
+              step="any"
               min="0"
               value={m.gas}
               onChange={(e) => handleFieldInput('gas', e.target.value)}
@@ -624,6 +632,7 @@ export default function HotpotCalculator() {
             <label>租金 / 其他分摊</label>
             <input
               type="number"
+              step="any"
               min="0"
               value={m.rent}
               onChange={(e) => handleFieldInput('rent', e.target.value)}
