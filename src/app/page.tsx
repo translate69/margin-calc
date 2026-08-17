@@ -1390,6 +1390,7 @@ export default function HotpotCalculator() {
             border-radius: 9px;
             color: var(--ink);
             background: #fff;
+            text-align: left;
           }
           .m-fields input:focus {
             outline: none;
@@ -1400,26 +1401,16 @@ export default function HotpotCalculator() {
             background: #f3f4f6;
             color: #9ca3af;
           }
-          .m-fields input.pu {
-            text-align: left;
-          }
           .m-fields input.ret {
-            text-align: right;
             background: #fff;
           }
           .m-fields input.ret.locked {
             background: #fffbeb;
             border-color: #fde68a;
           }
-          .m-fields input.cost {
-            text-align: right;
-          }
           .m-fields input.cost.zero {
             border-color: #f0b4b0;
             background: #fff8f7;
-          }
-          .m-fields input.note {
-            text-align: left;
           }
           .m-sum {
             display: flex;
