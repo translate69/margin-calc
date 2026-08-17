@@ -679,7 +679,7 @@ export default function HotpotCalculator() {
             />
           </div>
           <div className="row">
-            <label>一次性用品（围裙/纸巾）</label>
+            <label>一次性用品（桌布/纸巾）</label>
             <input
               type="number"
               step="any"
