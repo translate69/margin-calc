@@ -7,5 +7,8 @@ DEPLOY_RUN_PORT="${DEPLOY_RUN_PORT:-${PORT}}"
 
 cd "${COZE_WORKSPACE_PATH}"
 
-echo "Starting Next.js dev server on port ${DEPLOY_RUN_PORT}..."
-PORT=${DEPLOY_RUN_PORT} pnpm next dev -p "${DEPLOY_RUN_PORT}"
+echo "Building Next.js app for dev preview (prebuilt to avoid cold-compile race)..."
+pnpm next build
+
+echo "Starting Next.js server (dev preview) on port ${DEPLOY_RUN_PORT}..."
+exec pnpm next start -p "${DEPLOY_RUN_PORT}" -H 0.0.0.0
