@@ -219,6 +219,8 @@ export default function HotpotCalculator() {
   const [backup, setBackup] = useState<Meal[] | null>(null);
   const [saving, setSaving] = useState(false);
   const [dbStatus, setDbStatus] = useState('');
+  const [itemsExpanded, setItemsExpanded] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const m = meals[cur];
 
   // 工具函数
@@ -258,9 +260,11 @@ export default function HotpotCalculator() {
   };
 
   const r = compute(m);
+  const itemCount = m.items.filter((it: any) => it.kind === 'item').length;
 
   // 从数据库加载
   useEffect(() => {
+    setMounted(true);
     const load = async () => {
       try {
         const res = await fetch('/api/meals');
@@ -291,6 +295,7 @@ export default function HotpotCalculator() {
   const startEdit = () => {
     setBackup(clone(meals));
     setEditing(true);
+    setItemsExpanded(true); // 编辑时自动展开食材明细
   };
 
   const cancelEdit = () => {
@@ -299,6 +304,7 @@ export default function HotpotCalculator() {
       setBackup(null);
     }
     setEditing(false);
+    setItemsExpanded(false); // 退出编辑恢复折叠
   };
 
   // 保存到数据库
@@ -315,6 +321,7 @@ export default function HotpotCalculator() {
         alert('已保存 ✓（' + j.count + ' 个套餐已同步）');
         setEditing(false);
         setBackup(null);
+        setItemsExpanded(false); // 保存后恢复折叠
         setDbStatus('已保存');
       } else {
         alert('保存失败：' + (j.error || '未知错误'));
@@ -370,6 +377,21 @@ export default function HotpotCalculator() {
   };
 
   const disabledAttr = editing ? {} : { disabled: true };
+
+  if (!mounted) {
+    return (
+      <div className="loading-wrap">
+        <div className="loading-hotpot">
+          <div className="loading-pot"></div>
+          <div className="loading-steam">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div className="loading-brand">火锅毛利率</div>
+        <div className="loading-dots">加载中</div>
+      </div>
+    );
+  }
 
   return (
     <div className="wrap">
@@ -534,92 +556,110 @@ export default function HotpotCalculator() {
           </div>
 
           <div className="items-mobile">
-            {m.items.map((it: any, idx: number) => {
-              if (it.kind === 'group') {
-                return (
-                  <div key={'g' + idx} className="m-group">
-                    {it.label}
-                  </div>
-                );
-              }
-              return (
-                <div key={idx} className="m-card">
-                  <div className="m-head">
-                    <span className="m-name">{it.name}</span>
-                    <span className="m-price">{fmt(itemGroupPrice(it))}</span>
-                  </div>
-                  <div className="m-fields">
-                    <label>
-                      <span>分量</span>
-                      <input
-                        type="number"
-                        step="any"
-                        value={it.pnum != null ? it.pnum : ''}
-                        onChange={(e) => updateItem(idx, 'pnum', e.target.value)}
-                        onBlur={() => tryAutoRetail(idx)}
-                        {...disabledAttr}
-                      />
-                    </label>
-                    <label>
-                      <span>单位</span>
-                      <input
-                        className="pu"
-                        value={it.punit != null ? it.punit : ''}
-                        onChange={(e) => updateItem(idx, 'punit', e.target.value)}
-                        {...disabledAttr}
-                      />
-                    </label>
-                    <label>
-                      <span>零售单价</span>
-                      <input
-                        type="number"
-                        step="any"
-                        value={it.unitPrice != null ? it.unitPrice : ''}
-                        onChange={(e) => updateItem(idx, 'unitPrice', e.target.value)}
-                        onBlur={() => tryAutoRetail(idx)}
-                        {...disabledAttr}
-                      />
-                    </label>
-                    <label>
-                      <span>零售价</span>
-                      <input
-                        className={'ret' + (it.retailLock ? ' locked' : '')}
-                        type="number"
-                        step="any"
-                        value={it.retail != null ? it.retail : ''}
-                        onChange={(e) => handleRetailChange(idx, e.target.value)}
-                        {...disabledAttr}
-                      />
-                    </label>
-                    <label className="full">
-                      <span>成本价</span>
-                      <input
-                        className={'cost' + (it.cost == null ? ' zero' : '')}
-                        type="number"
-                        step="any"
-                        value={it.cost == null ? '' : it.cost}
-                        onChange={(e) => handleCostChange(idx, e.target.value)}
-                        {...disabledAttr}
-                      />
-                    </label>
-                    <label className="full">
-                      <span>备注</span>
-                      <input
-                        className="note"
-                        value={it.note != null ? it.note : ''}
-                        placeholder="如：100g/份"
-                        onChange={(e) => updateItem(idx, 'note', e.target.value)}
-                        {...disabledAttr}
-                      />
-                    </label>
-                  </div>
+            {!itemsExpanded ? (
+              <button type="button" className="m-toggle" onClick={() => setItemsExpanded(true)}>
+                <span className="mt-info">
+                  <span className="mt-title">食材明细（{itemCount}项）</span>
+                  <span className="mt-sub">食材成本小计 {fmt(foodRaw(m))} · 点开查看 / 编辑</span>
+                </span>
+                <span className="mt-arrow">查看 / 编辑 ↓</span>
+              </button>
+            ) : (
+              <>
+                <button type="button" className="m-toggle-inline" onClick={() => setItemsExpanded(false)}>
+                  收起食材明细 ↑
+                </button>
+                {m.items.map((it: any, idx: number) => {
+                  if (it.kind === 'group') {
+                    return (
+                      <div key={'g' + idx} className="m-group">
+                        {it.label}
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={idx} className="m-card">
+                      <div className="m-head">
+                        <span className="m-name">{it.name}</span>
+                        <span className="m-price">{fmt(itemGroupPrice(it))}</span>
+                      </div>
+                      <div className="m-fields">
+                        <label>
+                          <span>分量</span>
+                          <input
+                            type="number"
+                            step="any"
+                            value={it.pnum != null ? it.pnum : ''}
+                            onChange={(e) => updateItem(idx, 'pnum', e.target.value)}
+                            onBlur={() => tryAutoRetail(idx)}
+                            {...disabledAttr}
+                          />
+                        </label>
+                        <label>
+                          <span>单位</span>
+                          <input
+                            className="pu"
+                            value={it.punit != null ? it.punit : ''}
+                            onChange={(e) => updateItem(idx, 'punit', e.target.value)}
+                            {...disabledAttr}
+                          />
+                        </label>
+                        <label>
+                          <span>零售单价</span>
+                          <input
+                            type="number"
+                            step="any"
+                            value={it.unitPrice != null ? it.unitPrice : ''}
+                            onChange={(e) => updateItem(idx, 'unitPrice', e.target.value)}
+                            onBlur={() => tryAutoRetail(idx)}
+                            {...disabledAttr}
+                          />
+                        </label>
+                        <label>
+                          <span>零售价</span>
+                          <input
+                            className={'ret' + (it.retailLock ? ' locked' : '')}
+                            type="number"
+                            step="any"
+                            value={it.retail != null ? it.retail : ''}
+                            onChange={(e) => handleRetailChange(idx, e.target.value)}
+                            {...disabledAttr}
+                          />
+                        </label>
+                        <label className="full">
+                          <span>成本价</span>
+                          <input
+                            className={'cost' + (it.cost == null ? ' zero' : '')}
+                            type="number"
+                            step="any"
+                            value={it.cost == null ? '' : it.cost}
+                            onChange={(e) => handleCostChange(idx, e.target.value)}
+                            {...disabledAttr}
+                          />
+                        </label>
+                        <label className="full">
+                          <span>备注</span>
+                          <input
+                            className="note"
+                            value={it.note != null ? it.note : ''}
+                            placeholder="如：100g/份"
+                            onChange={(e) => updateItem(idx, 'note', e.target.value)}
+                            {...disabledAttr}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div className="m-sum">
+                  <span>食材成本小计（未计损耗）</span>
+                  <span>{fmt(foodRaw(m))}</span>
                 </div>
-              );
-            })}
-            <div className="m-sum">
-              <span>食材成本小计（未计损耗）</span>
-              <span>{fmt(foodRaw(m))}</span>
-            </div>
+                <button type="button" className="m-toggle-inline" onClick={() => setItemsExpanded(false)}>
+                  收起食材明细 ↑
+                </button>
+              </>
+            )}
           </div>
           <div className="row" style={{ marginTop: '10px' }}>
             <label>食材损耗率（%）</label>
@@ -1324,6 +1364,50 @@ export default function HotpotCalculator() {
           .items-mobile {
             display: block;
           }
+          .m-toggle {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 14px 16px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+          }
+          .m-toggle .mt-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+          }
+          .m-toggle .mt-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+          }
+          .m-toggle .mt-sub {
+            font-size: 12px;
+            color: var(--sub);
+          }
+          .m-toggle .mt-arrow {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--brand);
+            flex: none;
+          }
+          .m-toggle-inline {
+            width: 100%;
+            padding: 10px 0;
+            background: transparent;
+            border: none;
+            color: var(--brand);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+          }
           .m-card {
             background: #fff;
             border: 1px solid var(--line);
@@ -1457,6 +1541,70 @@ export default function HotpotCalculator() {
           .note {
             font-size: 11px;
           }
+        }
+
+        /* ===== 首屏 Loading ===== */
+        .loading-wrap{
+          position:fixed;inset:0;display:flex;flex-direction:column;
+          align-items:center;justify-content:center;
+          background:#fff;z-index:9999;
+        }
+        .loading-hotpot{
+          position:relative;width:80px;height:64px;margin-bottom:24px;
+        }
+        /* 锅身 */
+        .loading-pot{
+          position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+          width:64px;height:36px;
+          background:linear-gradient(180deg,#e0322d 0%,#b9231e 100%);
+          border-radius:0 0 32px 32px;
+          box-shadow:inset 0 -4px 0 rgba(0,0,0,.12);
+        }
+        /* 锅沿 */
+        .loading-pot::before{
+          content:"";position:absolute;top:-4px;left:-4px;right:-4px;height:10px;
+          background:#c72823;border-radius:6px;
+          box-shadow:0 2px 4px rgba(0,0,0,.15);
+        }
+        /* 锅把手 */
+        .loading-pot::after{
+          content:"";position:absolute;top:-2px;left:-12px;right:-12px;height:4px;
+          background:#8c1c18;border-radius:2px;
+        }
+        /* 蒸汽 */
+        .loading-steam{
+          position:absolute;bottom:38px;left:50%;transform:translateX(-50%);
+          display:flex;gap:6px;
+        }
+        .loading-steam span{
+          display:block;width:6px;height:16px;border-radius:3px;
+          background:rgba(224,50,45,.25);
+          animation:steam 1.4s ease-in-out infinite;
+        }
+        .loading-steam span:nth-child(1){ animation-delay: 0s; }
+        .loading-steam span:nth-child(2){ animation-delay: .25s; }
+        .loading-steam span:nth-child(3){ animation-delay: .5s; }
+        .loading-steam span:nth-child(4){ animation-delay: .75s; }
+        .loading-steam span:nth-child(5){ animation-delay: 1s; }
+        @keyframes steam{
+          0%   { transform: translateY(0) scaleY(.6); opacity: 0; }
+          30%  { opacity: 1; }
+          100% { transform: translateY(-22px) scaleY(1); opacity: 0; }
+        }
+        .loading-brand{
+          font-size:18px;font-weight:700;color:#1f2329;letter-spacing:2px;
+          margin-bottom:6px;
+        }
+        .loading-dots{
+          font-size:13px;color:#9ca3af;letter-spacing:1px;
+        }
+        .loading-dots::after{
+          content:"...";display:inline-block;width:20px;text-align:left;
+          animation:dots 1.2s steps(4,end) infinite;overflow:hidden;vertical-align:bottom;
+        }
+        @keyframes dots{
+          0%  { width: 0; }
+          100%{ width: 24px; }
         }
       `}</style>
     </div>
