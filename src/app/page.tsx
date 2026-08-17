@@ -312,7 +312,7 @@ export default function HotpotCalculator() {
       });
       const j = await res.json();
       if (j.success) {
-        alert('已保存到数据库 ✓（' + j.count + ' 个套餐已同步）');
+        alert('已保存 ✓（' + j.count + ' 个套餐已同步）');
         setEditing(false);
         setBackup(null);
         setDbStatus('已保存');
@@ -405,7 +405,7 @@ export default function HotpotCalculator() {
         ) : (
           <>
             <button className="btn" onClick={saveToDb} disabled={saving}>
-              {saving ? '保存中...' : '保存到数据库'}
+              {saving ? '保存中...' : '保存'}
             </button>
             <button className="btn ghost" onClick={cancelEdit}>
               取消
@@ -644,7 +644,7 @@ export default function HotpotCalculator() {
             <br />
             · 改「折扣」售价自动跟着变。
             <br />
-            · 填完点「保存到数据库」可同步给团队。
+            · 填完点「保存」可同步给团队。
           </div>
         </div>
       </div>
