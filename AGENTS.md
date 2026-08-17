@@ -1,21 +1,32 @@
 # AGENTS.md
 
 ## 项目概览
-火锅套餐毛利率计算器 —— 面向餐饮从业者的纯前端单页应用，帮助快速核算多套餐的成本结构与利润率。
+火锅套餐毛利率计算器 —— 面向餐饮从业者的 Web 应用，帮助快速核算多套餐的成本结构与利润率，数据持久化存储在数据库中。
 
 ## 技术栈
-- 原生 HTML/CSS/JavaScript（单文件应用，无构建步骤）
-- 原生极简模板 (native-static)
-- Python http.server 作为静态文件服务器
+- Next.js 16 (App Router) + React 19 + TypeScript
+- Tailwind CSS 4
+- Supabase 数据库（Postgres）
+- 原生 CSS 变量 + 内联样式（保留原设计风格）
 
 ## 项目结构
 ```
 .
-├── index.html          # 主页面（HTML + CSS + JS 全部内联）
-├── styles/             # 模板默认样式目录（未使用，样式已内联在 index.html）
-├── .coze               # 项目配置（构建/启动命令）
-├── DESIGN.md           # 设计规范文档
-└── AGENTS.md           # 本文档
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx          # 根布局
+│   │   ├── page.tsx            # 主页面（计算器）
+│   │   ├── globals.css         # 全局样式
+│   │   └── api/
+│   │       └── meals/
+│   │           └── route.ts    # 套餐数据 API（GET/POST）
+│   ├── components/             # shadcn/ui 组件（未使用）
+│   └── storage/database/
+│       ├── shared/schema.ts    # Drizzle schema 定义
+│       └── supabase-client.ts  # Supabase 客户端
+├── DESIGN.md                   # 设计规范
+├── AGENTS.md                   # 本文档
+└── .coze                       # 项目配置
 ```
 
 ## 核心功能
@@ -23,35 +34,42 @@
 2. **毛利率计算**：理论毛利率、实际毛利率（含损耗+餐具）、净利率
 3. **成本结构可视化**：彩色进度条展示食材/餐具/人工/水电/租金占比
 4. **编辑/只读模式**：默认只读防误改，点「编辑」解锁输入
-5. **导出 JSON**：一键导出所有套餐数据
-6. **Coze 数据库对接**：
-   - 保存配置到 localStorage
-   - 保存/加载套餐数据到 Coze 数据库
-   - 支持连接测试
-7. **套餐横向对比**：5 个套餐的核心指标对比表
+5. **数据库同步**：一键保存/加载套餐数据到 Supabase 数据库
+6. **套餐横向对比**：5 个套餐的核心指标对比表
 
 ## 关键文件说明
-### index.html
-- **HTML 结构**：单页面布局，包含套餐选择栏、配置面板、双栏卡片（套餐成本 + 营运费用）、三大指标卡片、成本结构条形图、对比表格
-- **CSS**：CSS 变量定义设计 token，卡片式设计，响应式布局（900px 断点单栏）
-- **JavaScript**：
-  - `MEALS` 数组：5 个套餐数据
-  - `compute(m)`：核心计算逻辑
-  - `calc()`：渲染计算结果
-  - `renderItems(m)`：渲染食材明细表格
-  - `startEdit() / cancelEdit() / saveMeal()`：编辑模式控制
-  - `cozeApi()` / `saveMeal()` / `loadFromCoze()`：Coze 数据库对接
+
+### src/app/page.tsx
+- Client Component，所有计算和渲染逻辑
+- `MEALS` 常量：5 个套餐的默认数据
+- `compute(m)`：核心计算逻辑
+- `calc()`：触发重新计算
+- `renderItems(m)`：渲染食材明细表格
+- `startEdit() / cancelEdit() / saveMeal()`：编辑模式控制
+- `saveToDb() / loadFromDb()`：数据库对接（通过 `/api/meals`）
+
+### src/app/api/meals/route.ts
+- `GET /api/meals`：获取所有套餐数据
+- `POST /api/meals`：批量保存/更新套餐数据（upsert）
+- 使用 service role key 绕过 RLS，直接操作数据库
+
+### 数据库表 hotpot_meals
+- `id` (serial, PK)
+- `meal_id` (varchar, unique)：套餐唯一标识
+- `name` (varchar)：套餐名称
+- `data` (jsonb)：完整套餐数据对象
+- `created_at` / `updated_at`：时间戳
 
 ## 本地开发与预览
-- 开发服务：`python -m http.server 5000 --bind 0.0.0.0`
+- 开发服务：`pnpm run dev`（端口 5000）
 - 访问地址：http://localhost:5000
-- 无需构建，修改 index.html 后刷新即可
+- 修改代码后自动热更新
 
 ## 部署说明
-- 纯静态站点，可部署到任何静态文件服务器
-- Coze 配置（Token、Database ID）存在浏览器 localStorage，不写入代码
+- 通过 `.coze` 配置的 build 和 run 命令自动部署
+- 数据库连接通过环境变量自动注入
 
 ## 常见问题
-- **Coze 跨域问题**：浏览器直连 Coze API 可能被 CORS 拦截，提示中已说明可用 Coze 工作流代理
+- **数据库为空**：首次打开页面加载默认数据，点「保存到数据库」后才会持久化
 - **成本价未填**：输入框红框提示，不影响计算但毛利率会虚高
 - **零售价锁定**：手动修改零售价后行标黄，不再随分量/单价自动计算
