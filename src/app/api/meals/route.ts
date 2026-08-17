@@ -11,14 +11,26 @@ export async function GET() {
 
     if (error) throw new Error(error.message);
 
-    return NextResponse.json({
-      success: true,
-      data: (data || []).map((row: any) => row.data),
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: (data || []).map((row: any) => row.data),
+      },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        },
+      }
+    );
   } catch (e: any) {
     return NextResponse.json(
       { success: false, error: e.message || '获取失败' },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        },
+      }
     );
   }
 }
@@ -62,11 +74,23 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, count: meals.length });
+    return NextResponse.json(
+      { success: true, count: meals.length },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        },
+      }
+    );
   } catch (e: any) {
     return NextResponse.json(
       { success: false, error: e.message || '保存失败' },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        },
+      }
     );
   }
 }
