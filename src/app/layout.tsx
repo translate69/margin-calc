@@ -24,9 +24,6 @@ export const metadata: Metadata = {
     '套餐定价',
   ],
   authors: [{ name: '火锅成本核算工具' }],
-  // icons: {
-  //   icon: '',
-  // },
   openGraph: {
     title: '火锅套餐毛利率计算器',
     description: '面向餐饮从业者的火锅套餐毛利率计算器，支持多套餐对比、成本结构可视化、数据库同步',
@@ -46,9 +43,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <head>
+      <body className="antialiased">
         {/* 内联首屏 Loading 关键样式 — 避免 CSS 加载前看到裸文字 */}
-        <style dangerouslySetInnerHTML={{ __html: `
+        <style
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `
           body{margin:0;background:#fff;}
           .loading-wrap{
             position:fixed;inset:0;z-index:9999;
@@ -98,9 +98,11 @@ export default function RootLayout({
             75%{content:"...";}
             100%{content:"";}
           }
-        ` }} />
-      </head>
-      <body className="antialiased">{children}</body>
+        `,
+          }}
+        />
+        {children}
+      </body>
     </html>
   );
 }
