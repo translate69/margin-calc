@@ -262,32 +262,37 @@ export default function HotpotCalculator() {
   const r = compute(m);
   const itemCount = m.items.filter((it: any) => it.kind === 'item').length;
 
-  // 从数据库加载
+  // 从数据库加载（彻底禁用缓存，避免部署/刷新后回到旧数据）
+  const load = async (showLoading = true) => {
+    if (showLoading) setDbStatus('正在加载...');
+    try {
+      const res = await fetch('/api/meals?t=' + Date.now(), {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+      });
+      const j = await res.json();
+      if (j.success && j.data && j.data.length > 0) {
+        // 合并：库内有数据的套餐用库内的，否则用默认值
+        const map: Record<string, any> = {};
+        j.data.forEach((d: any) => {
+          if (d.id && d.items && d.items.length) map[d.id] = d;
+        });
+        const merged = DEFAULT_MEALS.map((def) =>
+          map[def.id] ? { ...def, ...map[def.id] } : def
+        );
+        setMeals(merged);
+        setDbStatus('已从数据库加载（' + j.data.length + ' 个套餐）');
+      } else {
+        setDbStatus('使用内置默认数据（库内暂无记录）');
+      }
+    } catch (e: any) {
+      setDbStatus('数据库连接失败，使用本地默认数据：' + (e.message || e));
+      console.warn('加载失败', e);
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
-    const load = async () => {
-      try {
-        const res = await fetch('/api/meals');
-        const j = await res.json();
-        if (j.success && j.data && j.data.length > 0) {
-          // 合并：库内有数据的套餐用库内的，否则用默认值
-          const map: Record<string, any> = {};
-          j.data.forEach((d: any) => {
-            if (d.id && d.items && d.items.length) map[d.id] = d;
-          });
-          const merged = DEFAULT_MEALS.map((def) =>
-            map[def.id] ? { ...def, ...map[def.id] } : def
-          );
-          setMeals(merged);
-          setDbStatus('已从数据库加载');
-        } else {
-          setDbStatus('使用内置默认数据（库内暂无记录）');
-        }
-      } catch (e: any) {
-        setDbStatus('数据库连接失败，使用本地默认数据');
-        console.warn('加载失败', e);
-      }
-    };
     load();
   }, []);
 
@@ -322,7 +327,9 @@ export default function HotpotCalculator() {
         setEditing(false);
         setBackup(null);
         setItemsExpanded(false); // 保存后恢复折叠
-        setDbStatus('已保存');
+        setDbStatus('已保存，正在刷新...');
+        // 保存后立即重新加载，确保内存数据与数据库一致
+        await load(false);
       } else {
         alert('保存失败：' + (j.error || '未知错误'));
       }
