@@ -589,8 +589,17 @@ export default function HotpotCalculator() {
           <div className="hint">售价（团购成交价）= 零售价 × 折扣，自动计算</div>
           <div className="priceview">售价（团购价）= {fmt(r.P)}</div>
 
-          <div className="sub-h">食材明细（分量×单价=零售价，手动改零售价的行会标黄锁定）</div>
           <div className="items-desktop">
+            <div className="collapse-head">
+              <span className="t">
+                食材明细（{itemCount}项）· 小计 {fmt(foodRaw(m))}
+                {missingCostCount > 0 && <span className="mt-warn"> · {missingCostCount} 项未填成本价</span>}
+              </span>
+              <button type="button" className="collapse-btn" onClick={() => setItemsExpanded(!itemsExpanded)}>
+                {itemsExpanded ? '收起 ↑' : '展开 ↓'}
+              </button>
+            </div>
+            <div className={itemsExpanded ? '' : 'collapsed'}>
             <table className="items">
               <thead>
                 <tr>
@@ -686,6 +695,7 @@ export default function HotpotCalculator() {
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
 
           <div className="items-mobile">
@@ -805,7 +815,13 @@ export default function HotpotCalculator() {
             )}
           </div>
           <div className="costs-desktop">
-            {costsBlock}
+            <div className="collapse-head">
+              <span className="t">损耗与餐具</span>
+              <button type="button" className="collapse-btn" onClick={() => setCostsExpanded(!costsExpanded)}>
+                {costsExpanded ? '收起 ↑' : '展开 ↓'}
+              </button>
+            </div>
+            <div className={costsExpanded ? '' : 'collapsed'}>{costsBlock}</div>
           </div>
           <div className="costs-mobile">
             {!costsExpanded ? (
@@ -830,7 +846,27 @@ export default function HotpotCalculator() {
         </div>
 
         <div className="card expenses-desktop">
-          {expensesBlock}
+          {!expensesExpanded ? (
+            <button type="button" className="collapse-head-btn" onClick={() => setExpensesExpanded(true)}>
+              <span className="ch-info">
+                <span className="ch-title">② 营运费用</span>
+                <span className="ch-sub">
+                  人工 {fmt(m.lab || 0)} · 燃气 {fmt(m.gas || 0)} · 租金 {fmt(m.rent || 0)}
+                </span>
+              </span>
+              <span className="ch-arrow">展开 ↓</span>
+            </button>
+          ) : (
+            <>
+              <div className="collapse-head">
+                <span className="t">② 营运费用</span>
+                <button type="button" className="collapse-btn" onClick={() => setExpensesExpanded(false)}>
+                  收起 ↑
+                </button>
+              </div>
+              {expensesBlock}
+            </>
+          )}
         </div>
         <div className="card expenses-mobile">
           {!expensesExpanded ? (
@@ -1048,13 +1084,9 @@ export default function HotpotCalculator() {
         }
         .grid {
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: 1fr;
           gap: 14px;
-        }
-        @media (max-width: 900px) {
-          .grid {
-            grid-template-columns: 1fr;
-          }
+          align-items: start;
         }
         .card {
           background: var(--card);
@@ -1216,6 +1248,71 @@ export default function HotpotCalculator() {
         .costs-mobile,
         .expenses-mobile {
           display: none;
+        }
+
+        /* ===== 桌面端折叠（上下排列的卡片） ===== */
+        .collapse-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin: 14px 0 6px;
+          border-top: 1px dashed var(--line);
+          padding-top: 10px;
+        }
+        .collapse-head .t {
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--brand);
+        }
+        .collapse-btn {
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--brand);
+          background: #fff;
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          padding: 5px 12px;
+          cursor: pointer;
+        }
+        .collapse-btn:hover {
+          background: var(--brand-soft);
+        }
+        .collapsed {
+          display: none;
+        }
+        .collapse-head-btn {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 14px 16px;
+          background: #fff;
+          border: 1px solid var(--line);
+          border-radius: 12px;
+          cursor: pointer;
+          text-align: left;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+        .collapse-head-btn .ch-info {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+        }
+        .collapse-head-btn .ch-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--ink);
+        }
+        .collapse-head-btn .ch-sub {
+          font-size: 12px;
+          color: var(--sub);
+        }
+        .collapse-head-btn .ch-arrow {
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--brand);
+          flex: none;
         }
         input:disabled {
           background: #f3f4f6;
