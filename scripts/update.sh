@@ -5,7 +5,7 @@ set -Eeuo pipefail
 COZE_WORKSPACE_PATH="${COZE_WORKSPACE_PATH:-$(pwd)}"
 cd "${COZE_WORKSPACE_PATH}"
 
-echo "==> 开始更新 margin-calc（拉取最新代码 + 重新构建）"
+echo "==> 开始更新 margin-calc（拉取最新代码）"
 
 # 前置检查：git / pnpm 是否可用
 command -v git >/dev/null 2>&1 || { echo "✗ 找不到 git，请先安装 Git"; exit 1; }
@@ -48,15 +48,8 @@ else
   echo "✗ 当前在 '$CURRENT' 分支，更新脚本只支持 main，请先切回 main（git checkout main）"; exit 1
 fi
 
-# 安装 / 更新依赖
-echo "==> 安装依赖 ..."
-pnpm install --prefer-offline
-
-# 重新构建
-echo "==> 构建 Next.js 项目 ..."
-pnpm next build
-
 echo ""
-echo "✓ 更新完成！运行以下命令启动："
-echo "    pnpm start           # 生产模式，端口 5000"
+echo "✓ 代码已更新到最新版本（main）。如需构建/启动，请手动执行："
+echo "    pnpm install && pnpm build   # 或 ./scripts/build.sh"
+echo "    pnpm start                   # 生产模式，端口 5000"
 echo "    或 ./scripts/start.sh"
