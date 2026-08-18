@@ -263,6 +263,9 @@ export default function HotpotCalculator() {
 
   const r = compute(m);
   const itemCount = m.items.filter((it: any) => it.kind === 'item').length;
+  const missingCostCount = m.items.filter(
+    (it: any) => it.kind === 'item' && (it.cost == null || it.cost === 0)
+  ).length;
 
   // 从数据库加载（彻底禁用缓存，避免部署/刷新后回到旧数据）
   const load = async (showLoading = true) => {
@@ -597,7 +600,7 @@ export default function HotpotCalculator() {
                   <th>零售单价（元）</th>
                   <th>零售价（元）</th>
                   <th>团购价</th>
-                  <th>成本价（元）</th>
+                  <th>成本价（必填·元）</th>
                   <th>备注</th>
                 </tr>
               </thead>
@@ -656,7 +659,7 @@ export default function HotpotCalculator() {
                       <td className="num">{fmt(itemGroupPrice(it))}</td>
                       <td className="num">
                         <input
-                          className={'cost' + (it.cost == null ? ' zero' : '')}
+                          className={'cost' + (it.cost == null || it.cost === 0 ? ' zero' : '')}
                           value={it.cost == null ? '' : it.cost}
                           type="number"
                           step="any"
@@ -690,7 +693,12 @@ export default function HotpotCalculator() {
               <button type="button" className="m-toggle" onClick={() => setItemsExpanded(true)}>
                 <span className="mt-info">
                   <span className="mt-title">食材明细（{itemCount}项）</span>
-                  <span className="mt-sub">食材成本小计 {fmt(foodRaw(m))} · 点开查看</span>
+                  <span className="mt-sub">
+                    食材成本小计 {fmt(foodRaw(m))} · 点开查看
+                    {missingCostCount > 0 && (
+                      <span className="mt-warn"> · {missingCostCount} 项未填成本价</span>
+                    )}
+                  </span>
                 </span>
                 <span className="mt-arrow">查看 ↓</span>
               </button>
@@ -711,7 +719,11 @@ export default function HotpotCalculator() {
                     <div key={idx} className="m-card">
                       <div className="m-head">
                         <span className="m-name">{it.name}</span>
-                        <span className="m-price">{fmt(itemGroupPrice(it))}</span>
+                        {it.cost == null || it.cost === 0 ? (
+                          <span className="cost-miss">未填成本</span>
+                        ) : (
+                          <span className="m-price">{fmt(itemGroupPrice(it))}</span>
+                        )}
                       </div>
                       <div className="m-fields">
                         <label>
@@ -757,11 +769,12 @@ export default function HotpotCalculator() {
                           />
                         </label>
                         <label className="full">
-                          <span>成本价（元）</span>
+                          <span className="cost-label">成本价（必填·元）</span>
                           <input
-                            className={'cost' + (it.cost == null ? ' zero' : '')}
+                            className={'cost' + (it.cost == null || it.cost === 0 ? ' zero' : '')}
                             type="number"
                             step="any"
+                            placeholder="必填，如 12.5"
                             value={it.cost == null ? '' : it.cost}
                             onChange={(e) => handleCostChange(idx, e.target.value)}
                             {...disabledAttr}
@@ -1165,8 +1178,9 @@ export default function HotpotCalculator() {
           text-align: right;
         }
         table.items input.cost.zero {
-          border-color: #f0b4b0;
-          background: #fff8f7;
+          border-color: #dc2626;
+          border-width: 2px;
+          background: #fff1f0;
         }
         table.items input.pn {
           text-align: right;
@@ -1473,6 +1487,10 @@ export default function HotpotCalculator() {
             font-size: 12px;
             color: var(--sub);
           }
+          .m-toggle .mt-warn {
+            color: #dc2626;
+            font-weight: 700;
+          }
           .m-toggle .mt-arrow {
             font-size: 13px;
             font-weight: 600;
@@ -1519,6 +1537,15 @@ export default function HotpotCalculator() {
             font-weight: 700;
             font-size: 14px;
           }
+          .cost-miss {
+            flex: none;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            background: #dc2626;
+            padding: 2px 7px;
+            border-radius: 6px;
+          }
           .m-fields {
             display: flex;
             flex-direction: column;
@@ -1563,9 +1590,15 @@ export default function HotpotCalculator() {
             background: #fffbeb;
             border-color: #fde68a;
           }
+          .m-fields label span.cost-label {
+            width: 72px;
+            color: #dc2626;
+            font-weight: 700;
+          }
           .m-fields input.cost.zero {
-            border-color: #f0b4b0;
-            background: #fff8f7;
+            border-color: #dc2626;
+            border-width: 2px;
+            background: #fff1f0;
           }
           .m-sum {
             display: flex;
