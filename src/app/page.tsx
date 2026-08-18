@@ -220,6 +220,8 @@ export default function HotpotCalculator() {
   const [saving, setSaving] = useState(false);
   const [dbStatus, setDbStatus] = useState('');
   const [itemsExpanded, setItemsExpanded] = useState(false);
+  const [costsExpanded, setCostsExpanded] = useState(false);
+  const [expensesExpanded, setExpensesExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
   const m = meals[cur];
 
@@ -301,6 +303,8 @@ export default function HotpotCalculator() {
     setBackup(clone(meals));
     setEditing(true);
     setItemsExpanded(true); // 编辑时自动展开食材明细
+    setCostsExpanded(true);
+    setExpensesExpanded(true);
   };
 
   const cancelEdit = () => {
@@ -310,6 +314,8 @@ export default function HotpotCalculator() {
     }
     setEditing(false);
     setItemsExpanded(false); // 退出编辑恢复折叠
+    setCostsExpanded(false);
+    setExpensesExpanded(false);
   };
 
   // 保存到数据库
@@ -327,6 +333,8 @@ export default function HotpotCalculator() {
         setEditing(false);
         setBackup(null);
         setItemsExpanded(false); // 保存后恢复折叠
+        setCostsExpanded(false);
+        setExpensesExpanded(false);
         setDbStatus('已保存，正在刷新...');
         // 保存后立即重新加载，确保内存数据与数据库一致
         await load(false);
@@ -384,6 +392,120 @@ export default function HotpotCalculator() {
   };
 
   const disabledAttr = editing ? {} : { disabled: true };
+
+  // 移动端折叠块内容片段（桌面端直接渲染原内容）
+  const costsBlock = (
+    <>
+      <div className="row" style={{ marginTop: '10px' }}>
+        <label>食材损耗率（%）</label>
+        <input
+          type="number"
+          step="any"
+          min="0"
+          value={m.loss}
+          onChange={(e) => handleFieldInput('loss', e.target.value)}
+          {...disabledAttr}
+        />
+      </div>
+      <div className="hint">切配下脚料 + 化冻失水 + 剩菜 + 报损，火锅店常见 8%~15%</div>
+
+      <div className="sub-h">一次性餐具（按实际用量）</div>
+      <div className="row">
+        <label>套餐给的套数（标准）</label>
+        <input
+          type="number"
+          min="0"
+          step="0.1"
+          value={m.tableStd}
+          onChange={(e) => handleFieldInput('tableStd', e.target.value)}
+          {...disabledAttr}
+        />
+      </div>
+      <div className="row">
+        <label>实际平均用量（套/套）</label>
+        <input
+          type="number"
+          min="0"
+          step="0.1"
+          value={m.tableAct}
+          onChange={(e) => handleFieldInput('tableAct', e.target.value)}
+          {...disabledAttr}
+        />
+      </div>
+      <div className="row">
+        <label>单套餐具成本（元）</label>
+        <input
+          type="number"
+          step="any"
+          min="0"
+          value={m.tableUnit}
+          onChange={(e) => handleFieldInput('tableUnit', e.target.value)}
+          {...disabledAttr}
+        />
+      </div>
+      <div className="row">
+        <label>一次性用品（桌布/纸巾）（元）</label>
+        <input
+          type="number"
+          step="any"
+          min="0"
+          value={m.one}
+          onChange={(e) => handleFieldInput('one', e.target.value)}
+          {...disabledAttr}
+        />
+      </div>
+      <div className="pill">餐具超额使用率：{(r.tLoss * 100).toFixed(0)}%</div>
+    </>
+  );
+
+  const expensesBlock = (
+    <>
+      <h2>
+        ② 营运费用 <span className="tag">计入净利</span>
+      </h2>
+      <div className="hint">固定/半固定开支，不随每套餐具用量变，放净利层看</div>
+      <div className="row">
+        <label>人工分摊</label>
+        <input
+          type="number"
+          step="any"
+          min="0"
+          value={m.lab}
+          onChange={(e) => handleFieldInput('lab', e.target.value)}
+          {...disabledAttr}
+        />
+      </div>
+      <div className="row">
+        <label>燃气 / 水电</label>
+        <input
+          type="number"
+          step="any"
+          min="0"
+          value={m.gas}
+          onChange={(e) => handleFieldInput('gas', e.target.value)}
+          {...disabledAttr}
+        />
+      </div>
+      <div className="row">
+        <label>租金 / 其他分摊</label>
+        <input
+          type="number"
+          step="any"
+          min="0"
+          value={m.rent}
+          onChange={(e) => handleFieldInput('rent', e.target.value)}
+          {...disabledAttr}
+        />
+      </div>
+      <div className="note" style={{ marginTop: '14px' }}>
+        · 双人餐给 2 套、实际用 3 套 → 餐具多耗 50%，直接吃毛利。
+        <br />
+        · 改「折扣」售价自动跟着变。
+        <br />
+        · 填完点「保存」可同步给团队。
+      </div>
+    </>
+  );
 
   if (!mounted) {
     return (
@@ -669,112 +791,53 @@ export default function HotpotCalculator() {
               </>
             )}
           </div>
-          <div className="row" style={{ marginTop: '10px' }}>
-            <label>食材损耗率（%）</label>
-            <input
-              type="number"
-              step="any"
-              min="0"
-              value={m.loss}
-              onChange={(e) => handleFieldInput('loss', e.target.value)}
-              {...disabledAttr}
-            />
+          <div className="costs-desktop">
+            {costsBlock}
           </div>
-          <div className="hint">切配下脚料 + 化冻失水 + 剩菜 + 报损，火锅店常见 8%~15%</div>
-
-          <div className="sub-h">一次性餐具（按实际用量）</div>
-          <div className="row">
-            <label>套餐给的套数（标准）</label>
-            <input
-              type="number"
-              min="0"
-              step="0.1"
-              value={m.tableStd}
-              onChange={(e) => handleFieldInput('tableStd', e.target.value)}
-              {...disabledAttr}
-            />
+          <div className="costs-mobile">
+            {!costsExpanded ? (
+              <button type="button" className="m-toggle" onClick={() => setCostsExpanded(true)}>
+                <span className="mt-info">
+                  <span className="mt-title">损耗与餐具</span>
+                  <span className="mt-sub">
+                    损耗 {m.loss ?? 0}% · 餐具超额 {((r.tLoss || 0) * 100).toFixed(0)}% · 一次性用品 {fmt(m.one || 0)}
+                  </span>
+                </span>
+                <span className="mt-arrow">查看 ↓</span>
+              </button>
+            ) : (
+              <>
+                {costsBlock}
+                <button type="button" className="m-toggle-inline" onClick={() => setCostsExpanded(false)}>
+                  收起 ↑
+                </button>
+              </>
+            )}
           </div>
-          <div className="row">
-            <label>实际平均用量（套/套）</label>
-            <input
-              type="number"
-              min="0"
-              step="0.1"
-              value={m.tableAct}
-              onChange={(e) => handleFieldInput('tableAct', e.target.value)}
-              {...disabledAttr}
-            />
-          </div>
-          <div className="row">
-            <label>单套餐具成本（元）</label>
-            <input
-              type="number"
-              step="any"
-              min="0"
-              value={m.tableUnit}
-              onChange={(e) => handleFieldInput('tableUnit', e.target.value)}
-              {...disabledAttr}
-            />
-          </div>
-          <div className="row">
-            <label>一次性用品（桌布/纸巾）（元）</label>
-            <input
-              type="number"
-              step="any"
-              min="0"
-              value={m.one}
-              onChange={(e) => handleFieldInput('one', e.target.value)}
-              {...disabledAttr}
-            />
-          </div>
-          <div className="pill">餐具超额使用率：{(r.tLoss * 100).toFixed(0)}%</div>
         </div>
 
-        <div className="card">
-          <h2>
-            ② 营运费用 <span className="tag">计入净利</span>
-          </h2>
-          <div className="hint">固定/半固定开支，不随每套餐具用量变，放净利层看</div>
-          <div className="row">
-            <label>人工分摊</label>
-            <input
-              type="number"
-              step="any"
-              min="0"
-              value={m.lab}
-              onChange={(e) => handleFieldInput('lab', e.target.value)}
-              {...disabledAttr}
-            />
-          </div>
-          <div className="row">
-            <label>燃气 / 水电</label>
-            <input
-              type="number"
-              step="any"
-              min="0"
-              value={m.gas}
-              onChange={(e) => handleFieldInput('gas', e.target.value)}
-              {...disabledAttr}
-            />
-          </div>
-          <div className="row">
-            <label>租金 / 其他分摊</label>
-            <input
-              type="number"
-              step="any"
-              min="0"
-              value={m.rent}
-              onChange={(e) => handleFieldInput('rent', e.target.value)}
-              {...disabledAttr}
-            />
-          </div>
-          <div className="note" style={{ marginTop: '14px' }}>
-            · 双人餐给 2 套、实际用 3 套 → 餐具多耗 50%，直接吃毛利。
-            <br />
-            · 改「折扣」售价自动跟着变。
-            <br />
-            · 填完点「保存」可同步给团队。
-          </div>
+        <div className="card expenses-desktop">
+          {expensesBlock}
+        </div>
+        <div className="card expenses-mobile">
+          {!expensesExpanded ? (
+            <button type="button" className="m-toggle" onClick={() => setExpensesExpanded(true)}>
+              <span className="mt-info">
+                <span className="mt-title">营运费用</span>
+                <span className="mt-sub">
+                  人工 {fmt(m.lab || 0)} · 燃气 {fmt(m.gas || 0)} · 租金 {fmt(m.rent || 0)}
+                </span>
+              </span>
+              <span className="mt-arrow">查看 ↓</span>
+            </button>
+          ) : (
+            <>
+              {expensesBlock}
+              <button type="button" className="m-toggle-inline" onClick={() => setExpensesExpanded(false)}>
+                收起 ↑
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -1136,6 +1199,10 @@ export default function HotpotCalculator() {
         .items-mobile {
           display: none;
         }
+        .costs-mobile,
+        .expenses-mobile {
+          display: none;
+        }
         input:disabled {
           background: #f3f4f6;
           color: #9ca3af;
@@ -1367,6 +1434,10 @@ export default function HotpotCalculator() {
             margin: 12px 0 8px;
           }
           .items-desktop {
+            display: none;
+          }
+          .costs-desktop,
+          .expenses-desktop {
             display: none;
           }
           .items-mobile {
