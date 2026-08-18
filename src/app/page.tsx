@@ -397,8 +397,6 @@ export default function HotpotCalculator() {
         <div className="loading-brand">火锅毛利率</div>
         <div className="loading-dots">加载中</div>
         <div className="loading-spinner"></div>
-        <div className="loading-text">火锅套餐毛利率计算器</div>
-        <div className="loading-sub">正在加载...</div>
       </div>
     );
   }
