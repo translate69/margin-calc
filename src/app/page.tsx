@@ -1440,7 +1440,9 @@ export default function HotpotCalculator() {
           .expenses-desktop {
             display: none;
           }
-          .items-mobile {
+          .items-mobile,
+          .costs-mobile,
+          .expenses-mobile {
             display: block;
           }
           .m-toggle {
