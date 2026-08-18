@@ -594,10 +594,10 @@ export default function HotpotCalculator() {
                   <th>菜品名字</th>
                   <th>分量</th>
                   <th>单位</th>
-                  <th>零售单价</th>
-                  <th>零售价</th>
+                  <th>零售单价（元）</th>
+                  <th>零售价（元）</th>
                   <th>团购价</th>
-                  <th>成本价</th>
+                  <th>成本价（元）</th>
                   <th>备注</th>
                 </tr>
               </thead>
@@ -735,7 +735,7 @@ export default function HotpotCalculator() {
                           />
                         </label>
                         <label>
-                          <span>零售单价</span>
+                          <span>零售单价（元）</span>
                           <input
                             type="number"
                             step="any"
@@ -746,7 +746,7 @@ export default function HotpotCalculator() {
                           />
                         </label>
                         <label>
-                          <span>零售价</span>
+                          <span>零售价（元）</span>
                           <input
                             className={'ret' + (it.retailLock ? ' locked' : '')}
                             type="number"
@@ -757,7 +757,7 @@ export default function HotpotCalculator() {
                           />
                         </label>
                         <label className="full">
-                          <span>成本价</span>
+                          <span>成本价（元）</span>
                           <input
                             className={'cost' + (it.cost == null ? ' zero' : '')}
                             type="number"
