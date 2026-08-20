@@ -986,9 +986,9 @@ export default function HotpotCalculator() {
           <table className="cmp">
             <thead>
               <tr>
-                <th>团购价</th>
                 <th>套餐</th>
                 <th>成本价</th>
+                <th>团购价</th>
                 <th>利润</th>
                 <th>理论毛利率</th>
                 <th>实际毛利率</th>
@@ -1001,12 +1001,12 @@ export default function HotpotCalculator() {
                 const cr = compute(meal);
                 return (
                   <tr key={meal.id}>
-                    <td>{fmt(cr.P)}</td>
                     <td>
                       {meal.name}
                       {i === cur ? ' ·' : ''}
                     </td>
                     <td>{fmt(cr.grossCost)}</td>
+                    <td>{fmt(cr.P)}</td>
                     <td>{fmt(cr.P - cr.grossCost)}</td>
                     <td className="g">{pct(cr.mTheo)}</td>
                     <td className="g">{pct(cr.mReal)}</td>
@@ -1491,7 +1491,7 @@ export default function HotpotCalculator() {
           color: var(--sub);
           font-weight: 600;
         }
-        table.cmp td:nth-child(2) {
+        table.cmp td:first-child {
           text-align: left;
           font-weight: 600;
           color: #374151;
