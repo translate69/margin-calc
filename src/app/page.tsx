@@ -279,6 +279,9 @@ export default function HotpotCalculator() {
       fr,
       foodReal,
       tableCost,
+      grossCost,
+      costTotal,
+      theoFood,
       mTheo: P > 0 ? (P - theoFood) / P : 0,
       mReal: P > 0 ? (P - grossCost) / P : 0,
       mNet: P > 0 ? (P - costTotal) / P : 0,
@@ -983,10 +986,10 @@ export default function HotpotCalculator() {
           <table className="cmp">
             <thead>
               <tr>
+                <th>团购价</th>
                 <th>套餐</th>
-                <th>原价</th>
-                <th>折扣</th>
-                <th>售价</th>
+                <th>成本价</th>
+                <th>利润</th>
                 <th>理论毛利率</th>
                 <th>实际毛利率</th>
                 <th>净利率</th>
@@ -998,13 +1001,13 @@ export default function HotpotCalculator() {
                 const cr = compute(meal);
                 return (
                   <tr key={meal.id}>
+                    <td>{fmt(cr.P)}</td>
                     <td>
                       {meal.name}
                       {i === cur ? ' ·' : ''}
                     </td>
-                    <td>{fmt(meal.retail)}</td>
-                    <td>{meal.discount}折</td>
-                    <td>{fmt(cr.P)}</td>
+                    <td>{fmt(cr.grossCost)}</td>
+                    <td>{fmt(cr.P - cr.grossCost)}</td>
                     <td className="g">{pct(cr.mTheo)}</td>
                     <td className="g">{pct(cr.mReal)}</td>
                     <td className="b">{pct(cr.mNet)}</td>
@@ -1488,7 +1491,7 @@ export default function HotpotCalculator() {
           color: var(--sub);
           font-weight: 600;
         }
-        table.cmp td:first-child {
+        table.cmp td:nth-child(2) {
           text-align: left;
           font-weight: 600;
           color: #374151;
