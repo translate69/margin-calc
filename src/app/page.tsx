@@ -956,18 +956,21 @@ export default function HotpotCalculator() {
             { id: 'bGas', name: '燃气水电', val: m.gas, cls: 'f-gas' },
             { id: 'bRent', name: '租金其他', val: m.rent, cls: 'f-rent' },
           ].map((bar) => {
-            const w = r.P > 0 ? Math.min((bar.val / r.P) * 100, 100) : 0;
+            const ratio = r.P > 0 ? bar.val / r.P : 0;
+            const w = Math.min(ratio * 100, 100);
+            const showInside = w >= 8;
             return (
               <div className="bar" key={bar.id}>
                 <span className="name">{bar.name}</span>
                 <div className="track">
                   <div
                     className={'fill ' + bar.cls}
-                    style={{ width: w + '%' }}
+                    style={{ width: Math.max(w, 0.01) + '%' }}
                   >
-                    {r.P > 0 ? pct(bar.val / r.P) : ''}
+                    {showInside && r.P > 0 ? pct(ratio) : ''}
                   </div>
                 </div>
+                {!showInside && r.P > 0 ? <span className="bar-pct">{pct(ratio)}</span> : null}
               </div>
             );
           })}
@@ -1425,6 +1428,15 @@ export default function HotpotCalculator() {
           color: #fff;
           font-size: 12px;
           border-radius: 6px;
+          min-width: 4px;
+        }
+        .bar-pct {
+          margin-left: 8px;
+          font-size: 12px;
+          color: var(--sub);
+          flex: none;
+          min-width: 38px;
+          text-align: right;
         }
         .f-food {
           background: var(--brand);
@@ -1773,6 +1785,10 @@ export default function HotpotCalculator() {
           }
           .bar .track {
             height: 20px;
+          }
+          .bar-pct {
+            min-width: 34px;
+            font-size: 11px;
           }
           .pill {
             font-size: 12px;
