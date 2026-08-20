@@ -234,8 +234,33 @@ export default function HotpotCalculator() {
   const pct = (x: number) => (x * 100).toFixed(1) + '%';
   const fmt = (x: number) => '¥' + x.toFixed(1);
   const priceOf = (meal: Meal) => meal.retail * meal.discount / 10;
-  const foodRaw = (meal: Meal) =>
-    meal.items.reduce((s: number, it: any) => s + (it.kind === 'item' && it.cost != null ? it.cost : 0), 0);
+  const foodRaw = (meal: Meal) => {
+    const items = meal.items;
+    let sum = 0;
+    let i = 0;
+    while (i < items.length) {
+      const it = items[i];
+      if (it.kind === 'group') {
+        // 解析"X选Y" → 取最贵的 Y 个
+        const m = /(\d+)\s*选\s*(\d+)/.exec(it.label || '');
+        const pick = m ? parseInt(m[2]) : 1;
+        const groupItems: any[] = [];
+        i++;
+        while (i < items.length && items[i].kind === 'item') {
+          groupItems.push(items[i]);
+          i++;
+        }
+        const costs = groupItems.map((g) => (g.cost != null ? g.cost : 0)).sort((a, b) => b - a);
+        sum += costs.slice(0, pick).reduce((s, c) => s + c, 0);
+      } else if (it.kind === 'item') {
+        sum += it.cost != null ? it.cost : 0;
+        i++;
+      } else {
+        i++;
+      }
+    }
+    return sum;
+  };
   const itemGroupPrice = (it: any) =>
     it.retail != null ? it.retail * meals[cur].discount / 10 : 0;
 
