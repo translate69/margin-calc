@@ -615,12 +615,7 @@ function MealsView(props: {
             ))}
           </select>
 
-          <label className="ml">当前计算供应商：</label>
-          <select value={curSupplierId} onChange={(e) => setCurSupplierId(e.target.value)}>
-            {state.suppliers.map((sp) => (
-              <option key={sp.id} value={sp.id}>{sp.name}</option>
-            ))}
-          </select>
+
         </div>
       </div>
 
