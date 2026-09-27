@@ -691,61 +691,75 @@ function MealsView(props: {
             onChange={(e) => updateMealField('discount', e.target.value)}
           />
         </div>
-        <div className="field-row">
-          <label>食材损耗率（%）</label>
-          <input
-            type="number" step="any" value={meal.loss}
-            onChange={(e) => updateMealField('loss', e.target.value)}
-          />
+      </div>
+
+      {/* 损耗与餐具 */}
+      <div className="meal-fields-group">
+        <div className="group-title">🧾 损耗与餐具</div>
+        <div className="meal-fields compact">
+          <div className="field-row">
+            <label>食材损耗率（%）</label>
+            <input
+              type="number" step="any" value={meal.loss}
+              onChange={(e) => updateMealField('loss', e.target.value)}
+            />
+          </div>
+          <div className="field-row">
+            <label>套餐给的套数（标准）</label>
+            <input
+              type="number" step="any" value={meal.tableStd}
+              onChange={(e) => updateMealField('tableStd', e.target.value)}
+            />
+          </div>
+          <div className="field-row">
+            <label>实际平均用量（套/套）</label>
+            <input
+              type="number" step="any" value={meal.tableAct}
+              onChange={(e) => updateMealField('tableAct', e.target.value)}
+            />
+          </div>
+          <div className="field-row">
+            <label>单套餐具成本（元）</label>
+            <input
+              type="number" step="any" value={meal.tableUnit}
+              onChange={(e) => updateMealField('tableUnit', e.target.value)}
+            />
+          </div>
+          <div className="field-row">
+            <label>一次性用品（元）</label>
+            <input
+              type="number" step="any" value={meal.one}
+              onChange={(e) => updateMealField('one', e.target.value)}
+            />
+          </div>
         </div>
-        <div className="field-row">
-          <label>套餐给的套数（标准）</label>
-          <input
-            type="number" step="any" value={meal.tableStd}
-            onChange={(e) => updateMealField('tableStd', e.target.value)}
-          />
-        </div>
-        <div className="field-row">
-          <label>实际平均用量（套/套）</label>
-          <input
-            type="number" step="any" value={meal.tableAct}
-            onChange={(e) => updateMealField('tableAct', e.target.value)}
-          />
-        </div>
-        <div className="field-row">
-          <label>单套餐具成本（元）</label>
-          <input
-            type="number" step="any" value={meal.tableUnit}
-            onChange={(e) => updateMealField('tableUnit', e.target.value)}
-          />
-        </div>
-        <div className="field-row">
-          <label>一次性用品（桌布/纸巾）（元）</label>
-          <input
-            type="number" step="any" value={meal.one}
-            onChange={(e) => updateMealField('one', e.target.value)}
-          />
-        </div>
-        <div className="field-row">
-          <label>人工（元/套）</label>
-          <input
-            type="number" step="any" value={meal.lab}
-            onChange={(e) => updateMealField('lab', e.target.value)}
-          />
-        </div>
-        <div className="field-row">
-          <label>燃气水电（元/套）</label>
-          <input
-            type="number" step="any" value={meal.gas}
-            onChange={(e) => updateMealField('gas', e.target.value)}
-          />
-        </div>
-        <div className="field-row">
-          <label>租金分摊（元/套）</label>
-          <input
-            type="number" step="any" value={meal.rent}
-            onChange={(e) => updateMealField('rent', e.target.value)}
-          />
+      </div>
+
+      {/* 运营成本 */}
+      <div className="meal-fields-group">
+        <div className="group-title">💼 运营成本</div>
+        <div className="meal-fields compact">
+          <div className="field-row">
+            <label>人工（元/套）</label>
+            <input
+              type="number" step="any" value={meal.lab}
+              onChange={(e) => updateMealField('lab', e.target.value)}
+            />
+          </div>
+          <div className="field-row">
+            <label>燃气水电（元/套）</label>
+            <input
+              type="number" step="any" value={meal.gas}
+              onChange={(e) => updateMealField('gas', e.target.value)}
+            />
+          </div>
+          <div className="field-row">
+            <label>租金分摊（元/套）</label>
+            <input
+              type="number" step="any" value={meal.rent}
+              onChange={(e) => updateMealField('rent', e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
@@ -1668,30 +1682,60 @@ const STYLES = `
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 10px;
-    margin-bottom: 18px;
-    padding-bottom: 14px;
-    border-bottom: 1px dashed var(--line);
+    margin-bottom: 14px;
   }
-  .field-row { display: flex; flex-direction: column; gap: 4px; }
-  .field-row label { font-size: 12px; color: var(--sub); font-weight: 600; }
-  .field-row input {
-    padding: 7px 10px;
-    border: 1px solid var(--line);
+  .meal-fields.compact {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px 14px;
+    padding: 8px 10px;
+    background: #fafafa;
     border-radius: 8px;
-    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .meal-fields-group { margin-bottom: 6px; }
+  .group-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sub);
+    margin-bottom: 4px;
+    padding-left: 2px;
+  }
+  .field-row { display: flex; flex-direction: column; gap: 2px; }
+  .field-row label { font-size: 11px; color: var(--sub); font-weight: 600; }
+  .field-row input {
+    padding: 6px 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 13px;
     font-weight: 600;
+  }
+  .meal-fields.compact .field-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+  .meal-fields.compact .field-row label {
+    font-size: 12px;
+    white-space: nowrap;
+    min-width: 86px;
+  }
+  .meal-fields.compact .field-row input {
+    flex: 1;
+    padding: 4px 6px;
+    font-size: 13px;
   }
 
   /* 套餐明细 */
-  .meal-items-wrap h3 { margin: 0 0 4px; font-size: 15px; }
+  .meal-items-wrap { margin-top: 8px; }
+  .meal-items-wrap h3 { margin: 0 0 4px; font-size: 14px; }
   .meal-items {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
-    margin-top: 10px;
+    font-size: 12px;
+    margin-top: 6px;
   }
   .meal-items th, .meal-items td {
-    padding: 8px 6px;
+    padding: 4px 6px;
     border-bottom: 1px solid var(--line);
     text-align: left;
     vertical-align: middle;
@@ -1700,21 +1744,22 @@ const STYLES = `
     background: #fafafa;
     font-weight: 600;
     color: var(--sub);
-    font-size: 12px;
+    font-size: 11px;
+    padding: 4px 6px;
   }
   .meal-items input, .meal-items select {
     width: 100%;
-    padding: 6px 8px;
+    padding: 3px 6px;
     border: 1px solid var(--line);
-    border-radius: 6px;
-    font-size: 13px;
+    border-radius: 4px;
+    font-size: 12px;
   }
   .meal-items .group-row td {
     background: #fff9f8;
     color: var(--brand);
     font-weight: 600;
-    font-size: 13px;
-    padding: 8px 6px;
+    font-size: 12px;
+    padding: 4px 6px;
   }
   .meal-items .warn-row { background: #fffbeb; }
   .cost-val { font-weight: 600; text-align: right; color: var(--ink); }
