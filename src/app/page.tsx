@@ -545,6 +545,11 @@ function MealsView(props: {
   const { state, setState, curSupplierId, setCurSupplierId, curMeal, setCurMeal } = props;
   const meal = state.meals[curMeal];
 
+  // 折叠面板状态：默认全部收起
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }));
+  const isOpen = (k: string) => !!open[k];
+
   const updateMealField = (field: string, val: string) => {
     setState((s) => {
       const list = [...s.meals];
@@ -675,111 +680,28 @@ function MealsView(props: {
         })}
       </div>
 
-      {/* 套餐基本信息 */}
-      <div className="meal-fields">
-        <div className="field-row">
-          <label>零售价（元）</label>
-          <input
-            type="number" step="any" value={meal.retail}
-            onChange={(e) => updateMealField('retail', e.target.value)}
-          />
-        </div>
-        <div className="field-row">
-          <label>折扣（如 5.1）</label>
-          <input
-            type="number" step="0.1" value={meal.discount}
-            onChange={(e) => updateMealField('discount', e.target.value)}
-          />
-        </div>
-      </div>
-
-      {/* 损耗与餐具 */}
-      <div className="meal-fields-group">
-        <div className="group-title">🧾 损耗与餐具</div>
-        <div className="meal-fields compact">
-          <div className="field-row">
-            <label>食材损耗率（%）</label>
-            <input
-              type="number" step="any" value={meal.loss}
-              onChange={(e) => updateMealField('loss', e.target.value)}
-            />
-          </div>
-          <div className="field-row">
-            <label>套餐给的套数（标准）</label>
-            <input
-              type="number" step="any" value={meal.tableStd}
-              onChange={(e) => updateMealField('tableStd', e.target.value)}
-            />
-          </div>
-          <div className="field-row">
-            <label>实际平均用量（套/套）</label>
-            <input
-              type="number" step="any" value={meal.tableAct}
-              onChange={(e) => updateMealField('tableAct', e.target.value)}
-            />
-          </div>
-          <div className="field-row">
-            <label>单套餐具成本（元）</label>
-            <input
-              type="number" step="any" value={meal.tableUnit}
-              onChange={(e) => updateMealField('tableUnit', e.target.value)}
-            />
-          </div>
-          <div className="field-row">
-            <label>一次性用品（元）</label>
-            <input
-              type="number" step="any" value={meal.one}
-              onChange={(e) => updateMealField('one', e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* 运营成本 */}
-      <div className="meal-fields-group">
-        <div className="group-title">💼 运营成本</div>
-        <div className="meal-fields compact">
-          <div className="field-row">
-            <label>人工（元/套）</label>
-            <input
-              type="number" step="any" value={meal.lab}
-              onChange={(e) => updateMealField('lab', e.target.value)}
-            />
-          </div>
-          <div className="field-row">
-            <label>燃气水电（元/套）</label>
-            <input
-              type="number" step="any" value={meal.gas}
-              onChange={(e) => updateMealField('gas', e.target.value)}
-            />
-          </div>
-          <div className="field-row">
-            <label>租金分摊（元/套）</label>
-            <input
-              type="number" step="any" value={meal.rent}
-              onChange={(e) => updateMealField('rent', e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* 食材明细表格 */}
-      <div className="meal-items-wrap">
-        <h3>📋 食材明细</h3>
-        <p className="hint">
-          食材成本由【食材库 × 当前供应商】自动算出。二选一/三选行会取<strong>最贵的那个</strong>计入合计。
-        </p>
-        <table className="meal-items">
-          <thead>
-            <tr>
-              <th style={{ width: '22%' }}>食材</th>
-              <th style={{ width: '8%' }}>用量</th>
-              <th style={{ width: '8%' }}>单位</th>
-              <th style={{ width: '12%' }}>零售价</th>
-              <th style={{ width: '14%' }}>成本价（自动）</th>
-              <th style={{ width: '14%' }}>小计（×用量）</th>
-            </tr>
-          </thead>
+      {/* ① 食材明细（默认第一）*/}
+      <div className="accordion">
+        <button className="acc-head" onClick={() => toggle('items')}>
+          <span className="acc-icon">{isOpen('items') ? '▼' : '▶'}</span>
+          <span className="acc-title">📋 食材明细</span>
+        </button>
+        {isOpen('items') && (
+          <div className="acc-body">
+            <p className="hint">
+              食材成本由【食材库 × 当前供应商】自动算出。二选一/三选行会取<strong>最贵的那个</strong>计入合计。
+            </p>
+            <table className="meal-items">
+              <thead>
+                <tr>
+                  <th style={{ width: '22%' }}>食材</th>
+                  <th style={{ width: '8%' }}>用量</th>
+                  <th style={{ width: '8%' }}>单位</th>
+                  <th style={{ width: '12%' }}>零售价</th>
+                  <th style={{ width: '14%' }}>成本价（自动）</th>
+                  <th style={{ width: '14%' }}>小计（×用量）</th>
+                </tr>
+              </thead>
           <tbody>
             {meal.items.map((it, idx) => {
               if (it.kind === 'group') {
@@ -889,6 +811,120 @@ function MealsView(props: {
             </tr>
           </tbody>
         </table>
+          </div>
+        )}
+      </div>
+
+      {/* ② 基本信息 */}
+      <div className="accordion">
+        <button className="acc-head" onClick={() => toggle('basic')}>
+          <span className="acc-icon">{isOpen('basic') ? '▼' : '▶'}</span>
+          <span className="acc-title">💰 基本信息（零售价 / 折扣）</span>
+        </button>
+        {isOpen('basic') && (
+          <div className="acc-body">
+            <div className="meal-fields">
+              <div className="field-row">
+                <label>零售价（元）</label>
+                <input
+                  type="number" step="any" value={meal.retail}
+                  onChange={(e) => updateMealField('retail', e.target.value)}
+                />
+              </div>
+              <div className="field-row">
+                <label>折扣（如 5.1）</label>
+                <input
+                  type="number" step="0.1" value={meal.discount}
+                  onChange={(e) => updateMealField('discount', e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ③ 损耗与餐具 */}
+      <div className="accordion">
+        <button className="acc-head" onClick={() => toggle('table')}>
+          <span className="acc-icon">{isOpen('table') ? '▼' : '▶'}</span>
+          <span className="acc-title">🧾 损耗与餐具</span>
+        </button>
+        {isOpen('table') && (
+          <div className="acc-body">
+            <div className="meal-fields compact">
+              <div className="field-row">
+                <label>食材损耗率（%）</label>
+                <input
+                  type="number" step="any" value={meal.loss}
+                  onChange={(e) => updateMealField('loss', e.target.value)}
+                />
+              </div>
+              <div className="field-row">
+                <label>套餐给的套数（标准）</label>
+                <input
+                  type="number" step="any" value={meal.tableStd}
+                  onChange={(e) => updateMealField('tableStd', e.target.value)}
+                />
+              </div>
+              <div className="field-row">
+                <label>实际平均用量（套/套）</label>
+                <input
+                  type="number" step="any" value={meal.tableAct}
+                  onChange={(e) => updateMealField('tableAct', e.target.value)}
+                />
+              </div>
+              <div className="field-row">
+                <label>单套餐具成本（元）</label>
+                <input
+                  type="number" step="any" value={meal.tableUnit}
+                  onChange={(e) => updateMealField('tableUnit', e.target.value)}
+                />
+              </div>
+              <div className="field-row">
+                <label>一次性用品（元）</label>
+                <input
+                  type="number" step="any" value={meal.one}
+                  onChange={(e) => updateMealField('one', e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ④ 运营成本 */}
+      <div className="accordion">
+        <button className="acc-head" onClick={() => toggle('op')}>
+          <span className="acc-icon">{isOpen('op') ? '▼' : '▶'}</span>
+          <span className="acc-title">💼 运营成本</span>
+        </button>
+        {isOpen('op') && (
+          <div className="acc-body">
+            <div className="meal-fields compact">
+              <div className="field-row">
+                <label>人工（元/套）</label>
+                <input
+                  type="number" step="any" value={meal.lab}
+                  onChange={(e) => updateMealField('lab', e.target.value)}
+                />
+              </div>
+              <div className="field-row">
+                <label>燃气水电（元/套）</label>
+                <input
+                  type="number" step="any" value={meal.gas}
+                  onChange={(e) => updateMealField('gas', e.target.value)}
+                />
+              </div>
+              <div className="field-row">
+                <label>租金分摊（元/套）</label>
+                <input
+                  type="number" step="any" value={meal.rent}
+                  onChange={(e) => updateMealField('rent', e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1692,13 +1728,33 @@ const STYLES = `
     border-radius: 8px;
     margin-bottom: 10px;
   }
-  .meal-fields-group { margin-bottom: 6px; }
-  .group-title {
-    font-size: 12px;
+  /* 折叠面板 */
+  .accordion {
+    margin-bottom: 8px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .acc-head {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border: none;
+    background: #fafafa;
+    font-size: 13px;
     font-weight: 700;
-    color: var(--sub);
-    margin-bottom: 4px;
-    padding-left: 2px;
+    color: var(--ink);
+    cursor: pointer;
+    text-align: left;
+  }
+  .acc-head:hover { background: #f3f3f3; }
+  .acc-icon { font-size: 10px; color: var(--sub); width: 12px; }
+  .acc-body {
+    padding: 10px 12px;
+    border-top: 1px solid var(--line);
   }
   .field-row { display: flex; flex-direction: column; gap: 2px; }
   .field-row label { font-size: 11px; color: var(--sub); font-weight: 600; }
