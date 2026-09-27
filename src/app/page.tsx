@@ -412,12 +412,20 @@ function IngredientsView(props: {
                       {ing.isCombo ? (
                         <span className="muted">—</span>
                       ) : (
-                        <input
+                        <select
                           className="mini unit"
-                          value={p?.unit || ''}
-                          placeholder="斤"
+                          value={p?.unit || '斤'}
                           onChange={(e) => updatePrice(idx, curSupplierId, 'unit', e.target.value)}
-                        />
+                        >
+                          <option value="g">g</option>
+                          <option value="kg">kg</option>
+                          <option value="斤">斤</option>
+                          <option value="两">两</option>
+                          <option value="个">个</option>
+                          <option value="份">份</option>
+                          <option value="包">包</option>
+                          <option value="瓶">瓶</option>
+                        </select>
                       )}
                     </td>
                     <td className="action-cell">
