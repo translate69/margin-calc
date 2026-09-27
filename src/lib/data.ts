@@ -129,7 +129,7 @@ export const DEFAULT_MEALS_NEW: MealNew[] = [
     id: 'p12',
     name: '牛腩牛杂火锅1-2人餐（4.6折）',
     retail: 273, discount: 4.6, loss: 10,
-    tableStd: 2, tableAct: 2, tableUnit: 0,
+    tableStd: 2, tableAct: 2, tableUnit: 0, tableSell: 0,
     one: 0, lab: 0, gas: 0, rent: 0,
     items: [
       { kind: 'item', ingredientId: 'i-broth',      name: '现熬牛骨汤',  qty: 1,  qtyUnit: '锅', retail: 25, cost: 11.5 },
@@ -155,7 +155,7 @@ export const DEFAULT_MEALS_NEW: MealNew[] = [
     id: 'p23',
     name: '牛腩牛杂火锅2-3人餐（5.1折）',
     retail: 341, discount: 5.1, loss: 10,
-    tableStd: 2, tableAct: 2, tableUnit: 0,
+    tableStd: 2, tableAct: 2, tableUnit: 0, tableSell: 0,
     one: 0, lab: 0, gas: 0, rent: 0,
     items: [
       { kind: 'item', ingredientId: 'i-broth',           name: '现熬牛骨汤', qty: 1,  qtyUnit: '锅', retail: 25 },
@@ -182,7 +182,7 @@ export const DEFAULT_MEALS_NEW: MealNew[] = [
     id: 'p34',
     name: '牛腩牛杂火锅3-4人餐（5.4折）',
     retail: 433, discount: 5.4, loss: 10,
-    tableStd: 4, tableAct: 4, tableUnit: 0,
+    tableStd: 4, tableAct: 4, tableUnit: 0, tableSell: 0,
     one: 0, lab: 0, gas: 0, rent: 0,
     items: [
       { kind: 'item', ingredientId: 'i-broth',           name: '现熬牛骨汤', qty: 1,  qtyUnit: '锅', retail: 25 },
@@ -211,7 +211,7 @@ export const DEFAULT_MEALS_NEW: MealNew[] = [
     id: 'p56',
     name: '牛腩牛杂火锅5-6人餐（6.8折）',
     retail: 490, discount: 6.8, loss: 10,
-    tableStd: 6, tableAct: 6, tableUnit: 0,
+    tableStd: 6, tableAct: 6, tableUnit: 0, tableSell: 0,
     one: 0, lab: 0, gas: 0, rent: 0,
     items: [
       { kind: 'item', ingredientId: 'i-broth',           name: '现熬牛骨汤', qty: 1,  qtyUnit: '锅', retail: 25 },
@@ -240,7 +240,7 @@ export const DEFAULT_MEALS_NEW: MealNew[] = [
     id: 'p78',
     name: '牛腩牛杂火锅7-8人餐（5.9折）',
     retail: 923, discount: 5.9, loss: 10,
-    tableStd: 8, tableAct: 8, tableUnit: 0,
+    tableStd: 8, tableAct: 8, tableUnit: 0, tableSell: 0,
     one: 0, lab: 0, gas: 0, rent: 0,
     items: [
       { kind: 'item', ingredientId: 'i-broth',           name: '现熬牛骨汤', qty: 2,  qtyUnit: '锅', retail: 50 },

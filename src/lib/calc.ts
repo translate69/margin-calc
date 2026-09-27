@@ -169,6 +169,7 @@ export interface MealNew {
   tableStd: number;
   tableAct: number;
   tableUnit: number;
+  tableSell: number;
   one: number;
   lab: number;
   gas: number;
@@ -210,7 +211,7 @@ export function computeMeal(
   ingredients: IngredientNew[],
   supplierId: string
 ) {
-  const retail = mealRetailSum(meal.items);
+  const retail = mealRetailSum(meal.items) + (meal.tableSell || 0);
   const P = retail * meal.discount / 10;
   const fr = mealFoodCost(meal.items, ingredients, supplierId);
   const foodReal = fr * (1 + meal.loss / 100);

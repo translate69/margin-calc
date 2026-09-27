@@ -557,8 +557,11 @@ function MealsView(props: {
   const { state, setState, curSupplierId, setCurSupplierId, curMeal, setCurMeal } = props;
   const meal = state.meals[curMeal];
 
-  // 零售价合计：二选一/三选二 取组内最贵的 N 个
-  const retailSum = useMemo(() => mealRetailSum(meal.items), [meal.items]);
+  // 零售价合计：食材明细 + 餐具售价（二选一/三选二 取组内最贵的 N 个）
+  const retailSum = useMemo(
+    () => mealRetailSum(meal.items) + (meal.tableSell || 0),
+    [meal.items, meal.tableSell]
+  );
 
   // 折叠面板状态：默认全部收起
   const [open, setOpen] = useState<Record<string, boolean>>({});
@@ -865,6 +868,13 @@ function MealsView(props: {
                 <input
                   type="number" step="any" value={String(meal.one ?? "")}
                   onChange={(e) => updateMealField('one', e.target.value)}
+                />
+              </div>
+              <div className="field-row">
+                <label>餐具售价（元）</label>
+                <input
+                  type="number" step="any" value={String(meal.tableSell ?? "")}
+                  onChange={(e) => updateMealField('tableSell', e.target.value)}
                 />
               </div>
             </div>
