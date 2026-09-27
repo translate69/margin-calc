@@ -617,7 +617,6 @@ function MealsView(props: {
                   {i === 0 && <span className="rank-gold">🏆</span>}
                   <strong>{supplier.name}</strong>
                   {supplier.id === curSupplierId && <span className="tag-cur">当前</span>}
-                  {isBest && <span className="tag-best">毛利最高</span>}
                 </div>
                 <div className="hero-bar-track">
                   <div
@@ -647,7 +646,6 @@ function MealsView(props: {
               key={supplier.id}
               className={'compare-card ' + (supplier.id === curSupplierId ? 'active ' : '') + (isBest ? 'best' : '')}
             >
-              {isBest && <div className="badge-best">★ 毛利最高</div>}
               <div className="cc-supplier">{supplier.name}</div>
               <div className="cc-nums">
                 <div>
