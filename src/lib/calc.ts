@@ -178,6 +178,21 @@ export interface MealNew {
 }
 
 /**
+ * 从 "三选二" / "二选一" / "3选2" 这种 label 里解析出 "选 N 个" 的 N
+ */
+const CN_NUM: Record<string, number> = {
+  一: 1, 二: 2, 两: 2, 三: 3, 四: 4, 五: 5,
+  六: 6, 七: 7, 八: 8, 九: 9, 十: 10,
+};
+function parsePick(label: string | undefined): number {
+  if (!label) return 1;
+  const m = label.match(/(\d|[一二两三四五六七八九十])\s*选/);
+  if (!m) return 1;
+  const raw = m[1];
+  return /\d/.test(raw) ? parseInt(raw, 10) : CN_NUM[raw] ?? 1;
+}
+
+/**
  * 零售合计（二选一/三选二 取组内最贵的 N 个）
  */
 export function mealRetailSum(items: MealItemNew[]): number {
@@ -185,8 +200,7 @@ export function mealRetailSum(items: MealItemNew[]): number {
   for (let i = 0; i < items.length; i++) {
     const it = items[i];
     if (it.kind === 'group') {
-      const pick = it.label?.match(/(\d)\s*选/)?.[1];
-      const n = pick ? parseInt(pick) : 1;
+      const n = parsePick(it.label);
       const rets: number[] = [];
       i++;
       while (i < items.length && items[i].kind !== 'group') {
