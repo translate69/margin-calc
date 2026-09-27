@@ -559,7 +559,7 @@ function MealsView(props: {
 
   // 零售价合计：食材明细 + 餐具售价（二选一/三选二 取组内最贵的 N 个）
   const retailSum = useMemo(
-    () => mealRetailSum(meal.items) + (meal.tableSell || 0),
+    () => mealRetailSum(meal.items) + (meal.tableSell || 0) * (meal.tableAct || 1),
     [meal.items, meal.tableSell]
   );
 
