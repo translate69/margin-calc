@@ -1733,12 +1733,28 @@ const STYLES = `
     margin-bottom: 14px;
   }
   .meal-fields.compact {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 8px 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
     padding: 8px 10px;
     background: #fafafa;
     border-radius: 8px;
     margin-bottom: 10px;
+  }
+  .meal-fields.compact .field-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+  .meal-fields.compact .field-row label {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .meal-fields.compact .field-row input {
+    width: 72px;
+    padding: 4px 6px;
+    font-size: 13px;
+    text-align: right;
   }
   /* 折叠面板 */
   .accordion {
@@ -1776,21 +1792,6 @@ const STYLES = `
     border-radius: 6px;
     font-size: 13px;
     font-weight: 600;
-  }
-  .meal-fields.compact .field-row {
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-  }
-  .meal-fields.compact .field-row label {
-    font-size: 12px;
-    white-space: nowrap;
-    min-width: 86px;
-  }
-  .meal-fields.compact .field-row input {
-    flex: 1;
-    padding: 4px 6px;
-    font-size: 13px;
   }
 
   /* 套餐明细 */
