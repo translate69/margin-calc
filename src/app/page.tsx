@@ -878,12 +878,6 @@ function MealsView(props: {
           </tbody>
         </table>
       </div>
-
-      <div className="note">
-        · 所有数据自动保存到浏览器本地<br />
-        · 切换供应商 = 一键切换整套餐的成本结构和毛利对比<br />
-        · 未来可对接 Supabase 同步给团队
-      </div>
     </div>
   );
 }
