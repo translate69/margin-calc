@@ -389,7 +389,7 @@ function IngredientsView(props: {
                       ) : (
                         <input
                           className="rate-input"
-                          type="number" step="0.05" min="0" max="1"
+                          type="number" step="any"
                           value={p?.yieldRate ?? ing.yieldRate ?? 1}
                           onChange={(e) => updatePrice(idx, curSupplierId, 'yieldRate', e.target.value)}
                         />
@@ -428,7 +428,7 @@ function IngredientsView(props: {
                           value={p?.unit || '斤'}
                           onChange={(e) => updatePrice(idx, curSupplierId, 'unit', e.target.value)}
                         >
-                          <option value="g">g</option>
+                          <option value="克">克</option>
                           <option value="kg">kg</option>
                           <option value="斤">斤</option>
                           <option value="两">两</option>
@@ -745,7 +745,7 @@ function MealsView(props: {
                   const priceInfo = ing.prices[curSupplierId];
                   itemCost = ingredientCost(
                     priceInfo.price, priceInfo.unit,
-                    it.qty || 0, it.qtyUnit || 'g',
+                    it.qty || 0, it.qtyUnit || '克',
                     priceInfo.yieldRate ?? ing.yieldRate ?? 1
                   );
                 } else if (it.cost) {
@@ -767,7 +767,7 @@ function MealsView(props: {
                           ingredientId: e.target.value,
                           name: ing2?.name || '',
                           qty: it.qty ?? 100,
-                          qtyUnit: it.qtyUnit || (ing2?.isCombo ? '份' : 'g'),
+                          qtyUnit: it.qtyUnit || (ing2?.isCombo ? '份' : '克'),
                         });
                       }}
                     >
@@ -789,7 +789,7 @@ function MealsView(props: {
                   </td>
                   <td>
                     <select
-                      value={it.qtyUnit || 'g'}
+                      value={it.qtyUnit || '克'}
                       onChange={(e) => updateItem(idx, { qtyUnit: e.target.value })}
                     >
                       {['g', 'kg', '斤', '份', '个', '包', '瓶', '锅'].map((u) => (
@@ -838,14 +838,14 @@ function MealsView(props: {
               <div className="field-row">
                 <label>零售价（元）</label>
                 <input
-                  type="number" step="any" value={meal.retail}
+                  type="number" step="any" value={String(meal.retail ?? "")}
                   onChange={(e) => updateMealField('retail', e.target.value)}
                 />
               </div>
               <div className="field-row">
                 <label>折扣（如 5.1）</label>
                 <input
-                  type="number" step="0.1" value={meal.discount}
+                  type="number" step="0.1" value={String(meal.discount ?? "")}
                   onChange={(e) => updateMealField('discount', e.target.value)}
                 />
               </div>
@@ -866,35 +866,35 @@ function MealsView(props: {
               <div className="field-row">
                 <label>食材损耗率（%）</label>
                 <input
-                  type="number" step="any" value={meal.loss}
+                  type="number" step="any" value={String(meal.loss ?? "")}
                   onChange={(e) => updateMealField('loss', e.target.value)}
                 />
               </div>
               <div className="field-row">
                 <label>套餐给的套数（标准）</label>
                 <input
-                  type="number" step="any" value={meal.tableStd}
+                  type="number" step="any" value={String(meal.tableStd ?? "")}
                   onChange={(e) => updateMealField('tableStd', e.target.value)}
                 />
               </div>
               <div className="field-row">
                 <label>实际平均用量（套/套）</label>
                 <input
-                  type="number" step="any" value={meal.tableAct}
+                  type="number" step="any" value={String(meal.tableAct ?? "")}
                   onChange={(e) => updateMealField('tableAct', e.target.value)}
                 />
               </div>
               <div className="field-row">
                 <label>单套餐具成本（元）</label>
                 <input
-                  type="number" step="any" value={meal.tableUnit}
+                  type="number" step="any" value={String(meal.tableUnit ?? "")}
                   onChange={(e) => updateMealField('tableUnit', e.target.value)}
                 />
               </div>
               <div className="field-row">
                 <label>一次性用品（元）</label>
                 <input
-                  type="number" step="any" value={meal.one}
+                  type="number" step="any" value={String(meal.one ?? "")}
                   onChange={(e) => updateMealField('one', e.target.value)}
                 />
               </div>
@@ -915,21 +915,21 @@ function MealsView(props: {
               <div className="field-row">
                 <label>人工（元/套）</label>
                 <input
-                  type="number" step="any" value={meal.lab}
+                  type="number" step="any" value={String(meal.lab ?? "")}
                   onChange={(e) => updateMealField('lab', e.target.value)}
                 />
               </div>
               <div className="field-row">
                 <label>燃气水电（元/套）</label>
                 <input
-                  type="number" step="any" value={meal.gas}
+                  type="number" step="any" value={String(meal.gas ?? "")}
                   onChange={(e) => updateMealField('gas', e.target.value)}
                 />
               </div>
               <div className="field-row">
                 <label>租金分摊（元/套）</label>
                 <input
-                  type="number" step="any" value={meal.rent}
+                  type="number" step="any" value={String(meal.rent ?? "")}
                   onChange={(e) => updateMealField('rent', e.target.value)}
                 />
               </div>
@@ -1841,19 +1841,93 @@ const STYLES = `
   /* 响应式 */
   @media (max-width: 768px) {
     .tabs { flex-direction: row; flex-wrap: wrap; gap: 6px; }
-    .tab {
-      border-radius: 10px;
-      padding: 8px 12px;
-      font-size: 13px;
-    }
+    .tab { border-radius: 10px; padding: 8px 12px; font-size: 13px; }
     body { padding: 12px; }
     .panel { padding: 12px; border-radius: 12px; }
-    .compare-cards { grid-template-columns: 1fr 1fr; }
+    .compare-cards { grid-template-columns: 1fr; }
     .meal-items, .ing-table { font-size: 12px; }
     .header-row label.ml { margin-left: 0; }
-    .hero-bar { grid-template-columns: 100px 1fr 110px; }
-    .hero-bar-name { font-size: 12px; }
-    .meal-margin-row { grid-template-columns: 130px 1fr 100px; }
-    .mmr-name { font-size: 12px; }
+
+    /* ========== 食材库：表格 → 卡片 ========== */
+    .ing-table thead { display: none; }
+    .ing-table tbody tr {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+    .ing-table tbody tr.sub-recipe-row {
+      background: #fafafa;
+      border-style: dashed;
+      margin-left: 12px;
+    }
+    .ing-table tbody td {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: none !important;
+      padding: 0 !important;
+      white-space: nowrap;
+    }
+    .ing-table td:first-child { font-weight: 600; font-size: 14px; }
+    .ing-table .rate-input { width: 60px; }
+    .ing-table .mini.price { width: 70px; }
+    .ing-table .mini.unit { width: auto; }
+    .ing-table .action-cell { margin-left: auto; gap: 4px; }
+    .ing-table .combo-cost { font-size: 14px; }
+
+    /* ========== 套餐明细：表格 → 卡片 ========== */
+    .meal-items thead { display: none; }
+    .meal-items tbody tr {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 10px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .meal-items tbody td {
+      border: none !important;
+      padding: 0 !important;
+      white-space: nowrap;
+    }
+    .meal-items td:first-child {
+      flex: 1; min-width: 80px; font-weight: 600; font-size: 14px;
+    }
+    .meal-items .g-tag { font-size: 11px; }
+    .meal-items .g-item { font-size: 11px; background: #f5f5f5; padding: 2px 6px; border-radius: 4px; }
+
+    /* ========== 套餐毛利情况：详情表 → 卡片 ========== */
+    .meal-margin-detail thead { display: none; }
+    .meal-margin-detail tbody tr {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      border-radius: 10px;
+    }
+    .meal-margin-detail tbody td {
+      border: none !important;
+      padding: 0 !important;
+    }
+    .meal-margin-detail td:first-child {
+      flex: 1 0 100%; font-weight: 600; font-size: 14px;
+    }
+
+    /* 折叠面板内部紧凑 */
+    .acc-head { padding: 10px 12px; font-size: 14px; }
+    .meal-fields.compact { gap: 4px 10px; }
+    .meal-fields.compact .field-row input { width: 64px; }
+
+    /* 供应商对比卡片：纵向堆叠 */
+    .supplier-switch { flex-wrap: wrap; }
   }
 `;

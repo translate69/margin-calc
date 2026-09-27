@@ -102,7 +102,7 @@ function itemCost(
         priceInfo.price,
         priceInfo.unit || '斤',
         sub.amount,
-        'g',
+        '克',
         priceInfo.yieldRate ?? subIng.yieldRate ?? 1
       );
     }
@@ -117,7 +117,7 @@ function itemCost(
     priceInfo.price,
     priceInfo.unit || '斤',
     item.qty || 0,
-    item.qtyUnit || 'g',
+    item.qtyUnit || '克',
     priceInfo.yieldRate ?? ing.yieldRate ?? 1
   );
 }
