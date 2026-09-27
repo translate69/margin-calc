@@ -670,9 +670,9 @@ function MealsView(props: {
               <thead>
                 <tr>
                   <th style={{ width: '22%' }}>食材</th>
+                  <th style={{ width: '12%' }}>零售价</th>
                   <th style={{ width: '8%' }}>用量</th>
                   <th style={{ width: '8%' }}>单位</th>
-                  <th style={{ width: '12%' }}>零售价</th>
                   <th style={{ width: '14%' }}>成本价</th>
                   
                 </tr>
@@ -747,6 +747,13 @@ function MealsView(props: {
                   <td>
                     <input
                       type="number" step="any" min="0"
+                      value={it.retail ?? ''}
+                      onChange={(e) => updateItem(idx, { retail: parseFloat(e.target.value) || 0 })}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number" step="any" min="0"
                       value={it.qty ?? ''}
                       onChange={(e) => updateItem(idx, { qty: parseFloat(e.target.value) || 0 })}
                     />
@@ -760,13 +767,6 @@ function MealsView(props: {
                         <option key={u} value={u}>{u}</option>
                       ))}
                     </select>
-                  </td>
-                  <td>
-                    <input
-                      type="number" step="any" min="0"
-                      value={it.retail ?? ''}
-                      onChange={(e) => updateItem(idx, { retail: parseFloat(e.target.value) || 0 })}
-                    />
                   </td>
                   <td className="cost-val">
                     {fmt(itemCost)}
