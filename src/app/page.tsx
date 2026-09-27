@@ -10,6 +10,7 @@ import {
   computeMeal,
   ingredientCost,
   mealFoodCost,
+  mealRetailSum,
   type Supplier,
   type IngredientNew,
   type MealNew,
@@ -556,6 +557,9 @@ function MealsView(props: {
   const { state, setState, curSupplierId, setCurSupplierId, curMeal, setCurMeal } = props;
   const meal = state.meals[curMeal];
 
+  // 零售价合计：二选一/三选二 取组内最贵的 N 个
+  const retailSum = useMemo(() => mealRetailSum(meal.items), [meal.items]);
+
   // 折叠面板状态：默认全部收起
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }));
@@ -653,44 +657,6 @@ function MealsView(props: {
 
       </div>
 
-      {/* 毛利对比卡片 */}
-      <div className="compare-cards">
-        {allComparisons.map(({ supplier, result, foodCost }) => {
-          const isBest = supplier.id === bestSupplier.supplier.id;
-          return (
-            <div
-              key={supplier.id}
-              className={'compare-card ' + (supplier.id === curSupplierId ? 'active ' : '') + (isBest ? 'best' : '')}
-            >
-              <div className="cc-supplier">{supplier.name}</div>
-              <div className="cc-nums">
-                <div>
-                  <div className="cc-label">食材成本</div>
-                  <div className="cc-val">{fmt(foodCost)}</div>
-                </div>
-                <div>
-                  <div className="cc-label">实际毛利率</div>
-                  <div className={'cc-val ' + (result.mReal > 0.5 ? 'g' : 'r')}>
-                    {pct(result.mReal)}
-                  </div>
-                </div>
-                <div>
-                  <div className="cc-label">净利率</div>
-                  <div className={'cc-val ' + (result.mNet > 0.2 ? 'g' : 'r')}>
-                    {pct(result.mNet)}
-                  </div>
-                </div>
-                <div>
-                  <div className="cc-label">每套净利</div>
-                  <div className="cc-val">{fmt(result.P - result.costTotal)}</div>
-                </div>
-              </div>
-              {supplier.id === curSupplierId && <div className="badge-cur">当前使用</div>}
-            </div>
-          );
-        })}
-      </div>
-
       {/* ① 食材明细（默认第一）*/}
       <div className="accordion">
         <button className="acc-head" onClick={() => toggle('items')}>
@@ -709,8 +675,8 @@ function MealsView(props: {
                   <th style={{ width: '8%' }}>用量</th>
                   <th style={{ width: '8%' }}>单位</th>
                   <th style={{ width: '12%' }}>零售价</th>
-                  <th style={{ width: '14%' }}>成本价（自动）</th>
-                  <th style={{ width: '14%' }}>小计（×用量）</th>
+                  <th style={{ width: '14%' }}>成本价</th>
+                  <th style={{ width: '12%' }}>食材名</th>
                 </tr>
               </thead>
           <tbody>
@@ -836,11 +802,8 @@ function MealsView(props: {
           <div className="acc-body">
             <div className="meal-fields">
               <div className="field-row">
-                <label>零售价（元）</label>
-                <input
-                  type="number" step="any" value={String(meal.retail ?? "")}
-                  onChange={(e) => updateMealField('retail', e.target.value)}
-                />
+                <label>零售价（自动）</label>
+                <span className="auto-val">¥{retailSum.toFixed(2)}</span>
               </div>
               <div className="field-row">
                 <label>折扣（如 5.1）</label>
@@ -848,6 +811,12 @@ function MealsView(props: {
                   type="number" step="0.1" value={String(meal.discount ?? "")}
                   onChange={(e) => updateMealField('discount', e.target.value)}
                 />
+              </div>
+              <div className="field-row">
+                <label>团购价</label>
+                <span className="auto-val highlight">
+                  ¥{(retailSum * (meal.discount ?? 10) / 10).toFixed(2)}
+                </span>
               </div>
             </div>
           </div>
@@ -1750,6 +1719,15 @@ const STYLES = `
     font-size: 12px;
     white-space: nowrap;
   }
+    .auto-val {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--brand, #2563eb);
+  }
+  .auto-val.highlight {
+    font-size: 16px;
+    color: #dc2626;
+  }
   .meal-fields.compact .field-row input {
     width: 72px;
     padding: 4px 6px;
@@ -1925,7 +1903,16 @@ const STYLES = `
     /* 折叠面板内部紧凑 */
     .acc-head { padding: 10px 12px; font-size: 14px; }
     .meal-fields.compact { gap: 4px 10px; }
-    .meal-fields.compact .field-row input { width: 64px; }
+      .auto-val {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--brand, #2563eb);
+  }
+  .auto-val.highlight {
+    font-size: 16px;
+    color: #dc2626;
+  }
+  .meal-fields.compact .field-row input { width: 64px; }
 
     /* 供应商对比卡片：纵向堆叠 */
     .supplier-switch { flex-wrap: wrap; }

@@ -177,6 +177,32 @@ export interface MealNew {
 }
 
 /**
+ * 零售合计（二选一/三选二 取组内最贵的 N 个）
+ */
+export function mealRetailSum(items: MealItemNew[]): number {
+  let sum = 0;
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i];
+    if (it.kind === 'group') {
+      const pick = it.label?.match(/(\d)\s*选/)?.[1];
+      const n = pick ? parseInt(pick) : 1;
+      const rets: number[] = [];
+      i++;
+      while (i < items.length && items[i].kind !== 'group') {
+        rets.push(items[i].retail || 0);
+        i++;
+      }
+      i--;
+      rets.sort((a, b) => b - a);
+      sum += rets.slice(0, n).reduce((a, b) => a + b, 0);
+    } else {
+      sum += it.retail || 0;
+    }
+  }
+  return sum;
+}
+
+/**
  * 完整套餐毛利计算（给定一个供应商）
  */
 export function computeMeal(
@@ -184,7 +210,8 @@ export function computeMeal(
   ingredients: IngredientNew[],
   supplierId: string
 ) {
-  const P = meal.retail * meal.discount / 10;
+  const retail = mealRetailSum(meal.items);
+  const P = retail * meal.discount / 10;
   const fr = mealFoodCost(meal.items, ingredients, supplierId);
   const foodReal = fr * (1 + meal.loss / 100);
   const tableCost = meal.tableUnit * meal.tableAct;
