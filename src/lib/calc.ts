@@ -97,20 +97,20 @@ function itemCost(
       if (!subIng) continue;
       const priceInfo = subIng.prices?.[supplierId];
       if (!priceInfo || !priceInfo.price) continue;
-      // 子食材在配方里的 amount 单位是 g
+      // 子食材在配方里的 amount 单位是 g；出货率取当前供应商的
       perPortion += ingredientCost(
         priceInfo.price,
         priceInfo.unit || '斤',
         sub.amount,
         'g',
-        subIng.yieldRate || 1
+        priceInfo.yieldRate ?? subIng.yieldRate ?? 1
       );
     }
     // 套餐里写的是 qty "份"（或按配方克数比例）
     return perPortion * (item.qty || 1);
   }
 
-  // 普通食材
+  // 普通食材：出货率取当前供应商的，兼容旧的全局出货率
   const priceInfo = ing.prices?.[supplierId];
   if (!priceInfo || !priceInfo.price) return 0;
   return ingredientCost(
@@ -118,7 +118,7 @@ function itemCost(
     priceInfo.unit || '斤',
     item.qty || 0,
     item.qtyUnit || 'g',
-    ing.yieldRate || 1
+    priceInfo.yieldRate ?? ing.yieldRate ?? 1
   );
 }
 
@@ -134,13 +134,19 @@ export interface SubRecipe {
   amount: number; // 克
 }
 
+export interface PriceInfo {
+  price: number;
+  unit: string;
+  yieldRate?: number;       // 供应商级出货率 0~1，默认1
+}
+
 export interface IngredientNew {
   id: string;
   name: string;
-  yieldRate: number;        // 0~1，默认1
+  yieldRate?: number;       // 兼容旧数据：全局出货率（已弃用，改用供应商级）
   isCombo: boolean;
   subRecipe?: SubRecipe[];
-  prices?: Record<string, { price: number; unit: string }>;
+  prices?: Record<string, PriceInfo>;
 }
 
 export interface MealItemNew {

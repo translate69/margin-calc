@@ -43,10 +43,28 @@ function loadState(): SavedState {
       const parsed = JSON.parse(raw);
       // 版本不匹配 → 重置为默认数据
       if (parsed.version !== LS_VERSION) return defaultState();
-      return parsed;
+      return migrateState(parsed);
     }
   } catch {}
   return defaultState();
+}
+
+// 迁移：把食材的全局 yieldRate 分发到每个已有报价的供应商，实现供应商级独立出货率
+function migrateState(s: SavedState): SavedState {
+  let changed = false;
+  const ingredients = (s.ingredients || []).map((ing) => {
+    if (!ing.yieldRate || !ing.prices) return ing;
+    const newPrices = { ...ing.prices };
+    for (const sid of Object.keys(newPrices)) {
+      if (newPrices[sid] && newPrices[sid].yieldRate === undefined) {
+        newPrices[sid] = { ...newPrices[sid], yieldRate: ing.yieldRate };
+        changed = true;
+      }
+    }
+    return { ...ing, prices: newPrices, yieldRate: undefined };
+  });
+  if (!changed) return s;
+  return { ...s, ingredients };
 }
 
 function saveState(s: SavedState) {
@@ -158,14 +176,15 @@ function IngredientsView(props: {
     });
   };
 
-  const updatePrice = (idx: number, supplierId: string, field: 'price' | 'unit', val: string) => {
+  const updatePrice = (idx: number, supplierId: string, field: 'price' | 'unit' | 'yieldRate', val: string) => {
     setState((s) => {
       const list = [...s.ingredients];
       const ing = { ...list[idx] };
       ing.prices = { ...(ing.prices || {}) };
+      const num = parseFloat(val);
       ing.prices[supplierId] = {
-        ...(ing.prices[supplierId] || { price: 0, unit: '斤' }),
-        [field]: field === 'price' ? parseFloat(val) || 0 : val,
+        ...(ing.prices[supplierId] || { price: 0, unit: '斤', yieldRate: 1 }),
+        [field]: field === 'unit' ? val : (isNaN(num) ? (field === 'yieldRate' ? 1 : 0) : num),
       };
       list[idx] = ing;
       return { ...s, ingredients: list };
@@ -371,8 +390,8 @@ function IngredientsView(props: {
                         <input
                           className="rate-input"
                           type="number" step="0.05" min="0" max="1"
-                          value={ing.yieldRate}
-                          onChange={(e) => updateIngredient(idx, { yieldRate: parseFloat(e.target.value) || 1 })}
+                          value={p?.yieldRate ?? ing.yieldRate ?? 1}
+                          onChange={(e) => updatePrice(idx, curSupplierId, 'yieldRate', e.target.value)}
                         />
                       )}
                     </td>
@@ -432,7 +451,7 @@ function IngredientsView(props: {
                                 const subIng = state.ingredients.find((i) => i.id === sub.ingredientId);
                                 const subPrice = subIng?.prices?.[curSupplierId];
                                 const subCost = subPrice && !subIng?.isCombo
-                                  ? ingredientCost(subPrice.price, subPrice.unit, sub.amount, 'g', subIng.yieldRate)
+                                  ? ingredientCost(subPrice.price, subPrice.unit, sub.amount, 'g', subPrice.yieldRate ?? subIng.yieldRate ?? 1)
                                   : 0;
                                 return (
                                   <tr key={sIdx}>
@@ -476,7 +495,7 @@ function IngredientsView(props: {
                                         const subIng = state.ingredients.find((i) => i.id === sub.ingredientId);
                                         const subPrice = subIng?.prices?.[curSupplierId];
                                         if (!subPrice || subIng?.isCombo) return s;
-                                        return s + ingredientCost(subPrice.price, subPrice.unit, sub.amount, 'g', subIng.yieldRate);
+                                        return s + ingredientCost(subPrice.price, subPrice.unit, sub.amount, 'g', subPrice.yieldRate ?? subIng.yieldRate ?? 1);
                                       }, 0)
                                     )}
                                   </strong>
@@ -746,7 +765,7 @@ function MealsView(props: {
                   itemCost = ingredientCost(
                     priceInfo.price, priceInfo.unit,
                     it.qty || 0, it.qtyUnit || 'g',
-                    ing.yieldRate || 1
+                    priceInfo.yieldRate ?? ing.yieldRate ?? 1
                   );
                 } else if (it.cost) {
                   itemCost = it.cost;
