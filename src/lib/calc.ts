@@ -211,7 +211,7 @@ export function computeMeal(
   ingredients: IngredientNew[],
   supplierId: string
 ) {
-  const retail = mealRetailSum(meal.items) + (meal.tableSell || 0) * (meal.tableAct || 1);
+  const retail = mealRetailSum(meal.items) + (meal.tableSell || 0) * (meal.tableStd || 1);
   const P = retail * meal.discount / 10;
   const fr = mealFoodCost(meal.items, ingredients, supplierId);
   const foodReal = fr * (1 + meal.loss / 100);
