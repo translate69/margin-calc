@@ -761,7 +761,7 @@ function MealsView(props: {
                       value={it.qtyUnit || '克'}
                       onChange={(e) => updateItem(idx, { qtyUnit: e.target.value })}
                     >
-                      {['g', 'kg', '斤', '份', '个', '包', '瓶', '锅'].map((u) => (
+                      {['克', 'kg', '斤', '份', '个', '包', '瓶', '锅'].map((u) => (
                         <option key={u} value={u}>{u}</option>
                       ))}
                     </select>
