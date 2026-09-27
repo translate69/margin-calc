@@ -1921,5 +1921,28 @@ const STYLES = `
 
     /* 供应商对比卡片：纵向堆叠 */
     .supplier-switch { flex-wrap: wrap; }
+
+    /* ========== 套餐毛利情况：毛利率行适配 ========== */
+    .meal-margin-row {
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      gap: 6px 10px;
+    }
+    .mmr-name { grid-column: 1 / -1; grid-row: 1; }
+    .mmr-track { grid-column: 1; grid-row: 2; }
+    .mmr-nums { grid-column: 2; grid-row: 2; align-self: center; }
+
+    /* ========== 套餐对比表：横向滚动，避免列被挤爆 ========== */
+    .overview-table {
+      min-width: 580px;
+    }
+    .overview-table th, .overview-table td {
+      padding: 8px 6px;
+      white-space: nowrap;
+    }
+    .overview-table td:first-child {
+      white-space: normal;
+      min-width: 110px;
+    }
   }
 `;
