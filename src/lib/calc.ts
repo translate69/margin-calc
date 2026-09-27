@@ -58,8 +58,7 @@ export function mealFoodCost(
     const it = items[i];
     if (it.kind === 'group') {
       // 解析 "二选一" / "三选二" → 取最贵的 pick 个
-      const m = /(\d+)\s*选\s*(\d+)/.exec(it.label || '');
-      const pick = m ? parseInt(m[2]) : 1;
+      const pick = parsePick(it.label);
       const groupItems: MealItemNew[] = [];
       i++;
       while (i < items.length && items[i].kind === 'item') {
@@ -186,7 +185,8 @@ const CN_NUM: Record<string, number> = {
 };
 function parsePick(label: string | undefined): number {
   if (!label) return 1;
-  const m = label.match(/(\d|[一二两三四五六七八九十])\s*选/);
+  // "二选一" / "三选二" / "3选2" → 取“选”后面的数字（要选几个）
+  const m = label.match(/选\s*(\d|[一二两三四五六七八九十])/);
   if (!m) return 1;
   const raw = m[1];
   return /\d/.test(raw) ? parseInt(raw, 10) : CN_NUM[raw] ?? 1;
