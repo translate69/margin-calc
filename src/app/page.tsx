@@ -615,11 +615,14 @@ function MealsView(props: {
             ))}
           </select>
 
-
+          <label className="ml">供应商：</label>
+          <select value={curSupplierId} onChange={(e) => setCurSupplierId(e.target.value)}>
+            {state.suppliers.map((sp) => (
+              <option key={sp.id} value={sp.id}>{sp.name}</option>
+            ))}
+          </select>
         </div>
       </div>
-
-      {/* ===== 🔥 供应商毛利对比条形图 ===== */}
       <div className="compare-hero">
         <div className="compare-hero-head">
           <h3>📊 供应商毛利率对比</h3>
