@@ -679,7 +679,7 @@ function MealsView(props: {
                   <th style={{ width: '8%' }}>单位</th>
                   <th style={{ width: '12%' }}>零售价</th>
                   <th style={{ width: '14%' }}>成本价</th>
-                  <th style={{ width: '12%' }}>食材名</th>
+                  
                 </tr>
               </thead>
           <tbody>
@@ -687,7 +687,7 @@ function MealsView(props: {
               if (it.kind === 'group') {
                 return (
                   <tr key={idx} className="group-row">
-                    <td colSpan={6}>
+                    <td colSpan={5}>
                       <strong>🔀 {it.label}</strong>
                       <span className="hint-inline">
                         自动取组内最贵的计入合计
@@ -774,9 +774,6 @@ function MealsView(props: {
                     />
                   </td>
                   <td className="cost-val">
-                    {fmt(itemCost)}
-                  </td>
-                  <td className="cost-val total">
                     {fmt(itemCost)}
                   </td>
                 </tr>
