@@ -701,6 +701,34 @@ function MealsView(props: {
           />
         </div>
         <div className="field-row">
+          <label>套餐给的套数（标准）</label>
+          <input
+            type="number" step="any" value={meal.tableStd}
+            onChange={(e) => updateMealField('tableStd', e.target.value)}
+          />
+        </div>
+        <div className="field-row">
+          <label>实际平均用量（套/套）</label>
+          <input
+            type="number" step="any" value={meal.tableAct}
+            onChange={(e) => updateMealField('tableAct', e.target.value)}
+          />
+        </div>
+        <div className="field-row">
+          <label>单套餐具成本（元）</label>
+          <input
+            type="number" step="any" value={meal.tableUnit}
+            onChange={(e) => updateMealField('tableUnit', e.target.value)}
+          />
+        </div>
+        <div className="field-row">
+          <label>一次性用品（桌布/纸巾）（元）</label>
+          <input
+            type="number" step="any" value={meal.one}
+            onChange={(e) => updateMealField('one', e.target.value)}
+          />
+        </div>
+        <div className="field-row">
           <label>人工（元/套）</label>
           <input
             type="number" step="any" value={meal.lab}
