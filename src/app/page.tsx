@@ -397,7 +397,18 @@ function IngredientsView(props: {
                     </td>
                     <td>
                       {ing.isCombo ? (
-                        <span className="muted">配方组成</span>
+                        <strong className="combo-cost">
+                          ¥{(() => {
+                            const total = (ing.subRecipe || []).reduce((s, sub) => {
+                              const subIng = state.ingredients.find((i) => i.id === sub.ingredientId);
+                              if (!subIng) return s;
+                              const sp = subIng.prices?.[curSupplierId];
+                              if (!sp?.price) return s;
+                              return s + ingredientCost(sp.price, sp.unit, sub.amount, 'g', sp.yieldRate ?? subIng.yieldRate ?? 1);
+                            }, 0);
+                            return total.toFixed(2);
+                          })()}
+                        </strong>
                       ) : (
                         <input
                           className="mini price"
@@ -410,7 +421,7 @@ function IngredientsView(props: {
                     </td>
                     <td>
                       {ing.isCombo ? (
-                        <span className="muted">—</span>
+                        <span className="muted">/ 份</span>
                       ) : (
                         <select
                           className="mini unit"
@@ -1287,6 +1298,7 @@ const STYLES = `
   input.mini.price { text-align: right; }
   input.mini.unit { text-align: left; min-width: 36px; }
   .muted { color: #9ca3af; font-size: 12px; }
+  .combo-cost { color: var(--brand); font-size: 13px; }
   .action-cell { white-space: nowrap; }
 
   /* 组合食材配方 */
