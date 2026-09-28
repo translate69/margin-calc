@@ -725,7 +725,7 @@ function MealsView(props: {
               }
               return (
                 <tr key={idx} className={noPrice ? 'warn-row' : ''}>
-                  <td>
+                  <td data-label="食材">
                     <select
                       value={it.ingredientId || ''}
                       onChange={(e) => {
@@ -747,21 +747,21 @@ function MealsView(props: {
                     </select>
                     {noPrice && <span className="tag-warn">该供应商无报价</span>}
                   </td>
-                  <td>
+                  <td data-label="零售价">
                     <input
                       type="number" step="any" min="0"
                       value={it.retail ?? ''}
                       onChange={(e) => updateItem(idx, { retail: parseFloat(e.target.value) || 0 })}
                     />
                   </td>
-                  <td>
+                  <td data-label="用量">
                     <input
                       type="number" step="any" min="0"
                       value={it.qty ?? ''}
                       onChange={(e) => updateItem(idx, { qty: parseFloat(e.target.value) || 0 })}
                     />
                   </td>
-                  <td>
+                  <td data-label="单位">
                     <select
                       value={it.qtyUnit || '克'}
                       onChange={(e) => updateItem(idx, { qtyUnit: e.target.value })}
@@ -771,7 +771,7 @@ function MealsView(props: {
                       ))}
                     </select>
                   </td>
-                  <td className="cost-val">
+                  <td data-label="成本价" className="cost-val">
                     {fmt(itemCost)}
                   </td>
                 </tr>
@@ -1880,10 +1880,21 @@ const STYLES = `
       border: none !important;
       padding: 0 !important;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .meal-items tbody td::before {
+      content: attr(data-label);
+      font-size: 11px;
+      color: var(--sub);
+      font-weight: 600;
+      white-space: nowrap;
     }
     .meal-items td:first-child {
-      flex: 1; min-width: 80px; font-weight: 600; font-size: 14px;
+      flex: 1 0 100%; font-weight: 600; font-size: 14px;
     }
+    .meal-items td:first-child::before { display: none; }
     .meal-items .g-tag { font-size: 11px; }
     .meal-items .g-item { font-size: 11px; background: #f5f5f5; padding: 2px 6px; border-radius: 4px; }
 
