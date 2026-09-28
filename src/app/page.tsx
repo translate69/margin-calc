@@ -1932,6 +1932,16 @@ const STYLES = `
     .mmr-track { grid-column: 1; grid-row: 2; }
     .mmr-nums { grid-column: 2; grid-row: 2; align-self: center; }
 
+    /* ========== 供应商毛利率对比：hero-bar 适配 ========== */
+    .hero-bar {
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      gap: 6px 10px;
+    }
+    .hero-bar-name { grid-column: 1 / -1; grid-row: 1; }
+    .hero-bar-track { grid-column: 1; grid-row: 2; }
+    .hero-bar-meta { grid-column: 2; grid-row: 2; align-self: center; }
+
     /* ========== 套餐对比表：横向滚动，避免列被挤爆 ========== */
     .overview-table {
       min-width: 580px;
